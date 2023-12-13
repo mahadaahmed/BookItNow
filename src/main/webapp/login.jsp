@@ -15,14 +15,17 @@
         }
         .login-container {
             background-color: white;
-            padding: 20px;
+            padding: 40px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box; /* Include padding in the width */
         }
         .login-title {
             text-align: center;
             color: #333;
+            margin-bottom: 20px; /* Add some space below the title */
         }
         .form-group {
             margin-bottom: 15px;
@@ -36,6 +39,7 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            box-sizing: border-box; /* Include padding in the width */
         }
         .login-button {
             width: 100%;
@@ -45,6 +49,7 @@
             color: white;
             border-radius: 4px;
             cursor: pointer;
+            margin-top: 10px; /* Add some space above the button */
         }
         .login-button:hover {
             background-color: #0056b3;
@@ -53,6 +58,13 @@
             color: red;
             text-align: center;
             margin-bottom: 15px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 400px) {
+            .login-container {
+                padding: 20px;
+            }
         }
     </style>
 </head>
