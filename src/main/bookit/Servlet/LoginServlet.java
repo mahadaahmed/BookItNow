@@ -63,6 +63,7 @@ public class LoginServlet extends HttpServlet {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     HttpSession session = request.getSession();
+                    int isAdmin = rs.getInt("admin");
                     session.setAttribute("userId", rs.getInt("id")); // Store user ID
                     session.setAttribute("username", rs.getString("username")); // Store username
                     session.setAttribute("isAdmin", rs.getInt("admin")); // Store admin flag
@@ -73,8 +74,11 @@ public class LoginServlet extends HttpServlet {
                     System.out.println("User ID: " + session.getAttribute("userId")); // Check if attributes are set
                     System.out.println("Username: " + session.getAttribute("username"));
                     System.out.println("Is Admin: " + session.getAttribute("isAdmin"));
-                    // Redirect to the 'DashboardServlet' instead of 'dashboard.jsp'
-                    response.sendRedirect("dashboard"); // URL pattern for DashboardServlet
+                    user.setIsAdmin(isAdmin);
+
+                        // Redirect to the 'DashboardServlet' instead of 'dashboard.jsp'
+                        response.sendRedirect("dashboard"); // URL pattern for DashboardServlet
+
                 } else {
                     request.setAttribute("errorMessage", "Invalid username or password");
                     request.getRequestDispatcher("login.jsp").forward(request, response);
