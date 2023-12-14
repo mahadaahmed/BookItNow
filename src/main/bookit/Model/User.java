@@ -5,6 +5,7 @@ public class User {
     private String username;
     private String password;
     private int admin; // This could be boolean, but it's an int here to match the schema
+    private int isAdmin;
 
     // Constructor
     public User(int id, String username, String password, int admin) {
@@ -48,5 +49,20 @@ public class User {
 
     public void setAdmin(int admin) {
         this.admin = admin;
+    }
+
+    public boolean isAdmin() {
+        if(isAdmin > 0){
+            return true;
+        }
+        return false;
+    }
+
+    public int getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(int isAdmin) {
+        this.isAdmin = isAdmin;
     }
 }
