@@ -8,6 +8,7 @@
 <%@ page import="main.bookit.DAO.ListDAO" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="main.bookit.Model.BookingList" %>
+<%@ page import="java.util.Calendar" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -61,6 +62,26 @@
     .logout a:hover {
       background-color: #d32f2f;
     }
+
+    .cancel-booking-form {
+      display: inline-block; /* Align with the rest of the content */
+      margin-top: 10px; /* Space it a bit from the booking info */
+    }
+
+    .cancel-booking-form input[type="submit"] {
+      padding: 5px 10px;
+      background-color: #dc3545; /* Red color for cancellation */
+      color: white;
+      text-decoration: none;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer; /* To indicate it is clickable */
+      transition: background-color 0.3s; /* Smooth background color transition */
+    }
+
+    .cancel-booking-form input[type="submit"]:hover {
+      background-color: #bd2130; /* A darker shade of red on hover */
+    }
   </style>
 </head>
 <body>
@@ -96,22 +117,31 @@
   %>
   <h2>Your Bookings</h2>
   <div class="booking-list">
-    <% for (Reservation booking : bookings) {
-      BookingList bookingList = listDao.getBookingListById(booking.getListId());
-      if (bookingList != null) {
-        Course course = courseDao.getCourseById(bookingList.getCourseId());
-        String courseTitle = course != null ? course.getTitle() : "Unknown Course";
-        String time = dateFormat.format(bookingList.getStart());
-        String place = bookingList.getLocation();
+    <%
+      for (Reservation booking : bookings) {
+        BookingList bookingList = listDao.getBookingListById(booking.getListId());
+        if (bookingList != null) {
+          Course course = courseDao.getCourseById(bookingList.getCourseId());
+          String courseTitle = course != null ? course.getTitle() : "Unknown Course";
+          Calendar calendar = Calendar.getInstance();
+          calendar.setTime(bookingList.getStart());
+          calendar.add(Calendar.MINUTE, booking.getSequence() * bookingList.getInterval());
+          String time = dateFormat.format(calendar.getTime());
+          String place = bookingList.getLocation();
     %>
     <div class="booking-item">
       <strong>Course:</strong> <%= courseTitle %><br>
       <strong>Time:</strong> <%= time %><br>
       <strong>Place:</strong> <%= place %>
+      <form class="cancel-booking-form" action="cancelBooking" method="post">
+        <input type="hidden" name="bookingId" value="<%= booking.getId() %>" />
+        <input type="submit" value="Cancel Booking" />
+      </form>
     </div>
     <%
         }
-      } %>
+      }
+    %>
   </div>
   <%
   } else {

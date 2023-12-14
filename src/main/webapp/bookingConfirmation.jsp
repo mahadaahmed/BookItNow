@@ -1,4 +1,3 @@
-<%@ page import="java.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html>
@@ -37,11 +36,17 @@
   </style>
 </head>
 <body>
+<%
+  // No need to declare 'session', just use the implicit object
+  String bookingStatus = (String) session.getAttribute("bookingStatus");
+  String bookingMessage = (String) session.getAttribute("bookingMessage");
+  session.removeAttribute("bookingStatus");
+  session.removeAttribute("bookingMessage");
+%>
 <div class="container">
   <h1>Booking Confirmation</h1>
-  <div class="<%= request.getAttribute("bookingStatus") != null && request.getAttribute("bookingStatus").equals("success") ? "success" : "error" %>">
-    <%-- Use expression tags to display the message --%>
-    <%= request.getAttribute("bookingMessage") != null ? request.getAttribute("bookingMessage") : "An unexpected error occurred." %>
+  <div class="message <%= bookingStatus != null && bookingStatus.equals("success") ? "success" : "error" %>">
+    <%= bookingMessage != null ? bookingMessage : "An unexpected error occurred." %>
   </div>
   <!-- Link to go back to the dashboard or any other page -->
   <a href="dashboard">Return to Dashboard</a>

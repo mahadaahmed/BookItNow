@@ -1,6 +1,8 @@
 package main.bookit.Servlet;
 
 import main.bookit.DAO.BookingDAO;
+import main.bookit.Model.User;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -16,31 +18,31 @@ public class BookTimeSlotServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("userId") != null) {
+        if (session != null && session.getAttribute("user") != null) {
+            User user = (User) session.getAttribute("user");
             int listId = Integer.parseInt(request.getParameter("listId"));
             int sequence = Integer.parseInt(request.getParameter("sequence"));
-            int userId = (Integer) session.getAttribute("userId");
+            int userId = user.getId(); // Assuming 'User' class has getId() method
 
             BookingDAO bookingDAO = new BookingDAO();
-            boolean bookingSuccess = bookingDAO.createBooking(listId, userId, sequence);
-            if (bookingSuccess) {
-                request.setAttribute("bookingStatus", "success");
-                request.setAttribute("bookingMessage", "Your booking was successful!");
+
+            // Check if the timeslot is available before attempting to book
+            if (bookingDAO.isTimeslotAvailable(listId, sequence)) {
+                boolean bookingSuccess = bookingDAO.createBooking(listId, userId, sequence);
+
+                if (bookingSuccess) {
+                    session.setAttribute("bookingStatus", "success");
+                    session.setAttribute("bookingMessage", "Your booking was successful!");
+                    response.sendRedirect("bookingConfirmation.jsp");
+                } else {
+                    request.setAttribute("errorMessage", "Failed to book the time slot. An error occurred.");
+                    request.getRequestDispatcher("/timeslot?courseId=" + listId).forward(request, response);
+                }
             } else {
-                request.setAttribute("bookingStatus", "error");
-                request.setAttribute("bookingMessage", "Failed to book the time slot. It might be already taken or an error occurred.");
-            }
-            request.getRequestDispatcher("bookingConfirmation.jsp").forward(request, response);
-            if (bookingSuccess) {
-                // Redirect to a confirmation page
-                response.sendRedirect("bookingConfirmation.jsp");
-            } else {
-                // Handle the error, such as time slot already booked
-                request.setAttribute("errorMessage", "Time slot is already booked or error occurred.");
-                request.getRequestDispatcher("/timeslots.jsp").forward(request, response);
+                request.setAttribute("errorMessage", "Time slot is already booked.");
+                request.getRequestDispatcher("/timeslot?courseId=" + listId).forward(request, response);
             }
         } else {
-            // If the session or user ID doesn't exist, redirect to login page
             response.sendRedirect("login.jsp");
         }
     }

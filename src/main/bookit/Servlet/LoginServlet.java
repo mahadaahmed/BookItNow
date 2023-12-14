@@ -8,7 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 
-@WebServlet("/login")
+@WebServlet(name = "LoginServlet", urlPatterns = {"/"})
 public class LoginServlet extends HttpServlet {
 
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/bookingdb";

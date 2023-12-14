@@ -126,6 +126,41 @@ public class ListDAO {
         }
         return bookingList;
     }
+
+
+
+    // Method to get a list of booked slot sequences for a particular list
+    public List<Integer> getBookedSlotSequences(int listId) {
+        List<Integer> bookedSlots = new ArrayList<>();
+        String sql = "SELECT sequence FROM booking.reservations WHERE list_id = ? ORDER BY sequence ASC;";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, listId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    bookedSlots.add(rs.getInt("sequence"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookedSlots;
+    }
+
+    // Method to get available slot sequences for a particular list
+    public List<Integer> getAvailableSlotSequences(int listId, int maxSlots) {
+        List<Integer> availableSlots = new ArrayList<>();
+        List<Integer> bookedSlots = getBookedSlotSequences(listId);
+
+        for (int i = 0; i < maxSlots; i++) {
+            if (!bookedSlots.contains(i)) {
+                availableSlots.add(i);
+            }
+        }
+        return availableSlots;
+    }
 }
 
 

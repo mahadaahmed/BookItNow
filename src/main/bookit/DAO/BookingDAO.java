@@ -59,6 +59,40 @@ public class BookingDAO {
         }
     }
 
+    public boolean isTimeslotAvailable(int listId, int sequence) {
+        String sql = "SELECT COUNT(*) AS slotCount FROM booking.reservations WHERE list_id = ? AND sequence = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, listId);
+            pstmt.setInt(2, sequence);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("slotCount") == 0; // If count is 0, slot is available
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    public boolean cancelBooking(int bookingId) {
+        String sql = "DELETE FROM booking.reservations WHERE id = ?;";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, bookingId);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 
     // Additional methods to handle other CRUD operations could be added here
 }
