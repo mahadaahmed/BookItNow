@@ -49,7 +49,6 @@ public class CreateListServlet extends HttpServlet {
 
             if (isSuccess) {
                 // Redirect or forward to success page or admin dashboard
-                //request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
                 response.sendRedirect("dashboard.jsp");
             } else {
                 // Handle failure: set error message and forward back to form
