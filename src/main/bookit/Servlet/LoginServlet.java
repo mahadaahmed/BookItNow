@@ -3,17 +3,38 @@ package main.bookit.Servlet;
 import main.bookit.Model.User;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
+import java.util.Properties;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/"})
 public class LoginServlet extends HttpServlet {
+    private String DB_URL;
+    private String USER;
+    private String PASS;
 
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/bookingdb";
-    private static final String USER = "postgres";
-    private static final String PASS = "12345";
+    @Override
+    public void init() throws ServletException {
+        super.init();
+
+        // Load properties file
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
+            Properties prop = new Properties();
+            if (input == null) {
+                throw new ServletException("Unable to load config.properties");
+            }
+            prop.load(input);
+
+            DB_URL = prop.getProperty("db.url");
+            USER = prop.getProperty("db.user");
+            PASS = prop.getProperty("db.pass");
+        } catch (IOException ex) {
+            throw new ServletException("Could not load configuration file", ex);
+        }
+    }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
