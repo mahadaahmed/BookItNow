@@ -92,6 +92,34 @@ public class BookingDAO {
         }
     }
 
+    public List<Reservation> getAllReservations() {
+        List<Reservation> reservations = new ArrayList<>();
+        String sql = "SELECT * FROM booking.reservations";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Reservation reservation = new Reservation(
+                            rs.getInt("id"),
+                            rs.getInt("list_id"),
+                            rs.getInt("user_id"),
+                            rs.getInt("coop_id"),
+                            rs.getInt("sequence")
+                    );
+                    reservations.add(reservation);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Optionally, you can handle or log the exception as needed
+        }
+
+        return reservations;
+    }
+
+
 
 
     // Additional methods to handle other CRUD operations could be added here
