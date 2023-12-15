@@ -6,62 +6,68 @@ import main.bookit.Model.User;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.Timestamp;
 
-// In CreateListServlet.java
 @WebServlet("/createList")
 public class CreateListServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Check if the user is an admin
-        // You can check session for an isAdmin flag or similar
-        HttpSession session = request.getSession(false);
-        User user = (User) session.getAttribute("user");
-        int isAdmin = (int) session.getAttribute("isAdmin");
-        if (user != null && isAdmin > 0) {
-            // Get parameters from the request
-            int ID = Integer.parseInt(request.getParameter("ID"));
-            int courseId = Integer.parseInt(request.getParameter("courseID"));
-            int userId = Integer.parseInt(request.getParameter("userID"));
-            String description = request.getParameter("description");
-            String location = request.getParameter("location");
-            //Timestamp startTime = Timestamp.valueOf(request.getParameter("start"));
-            String startTimeString = request.getParameter("start");
-            // Append ":00" to match the SQL Timestamp format "yyyy-MM-dd hh:mm:ss"
-            startTimeString = startTimeString.replace("T", " ") + ":00";
-            Timestamp startTime = Timestamp.valueOf(startTimeString);
 
-            int interval = Integer.parseInt(request.getParameter("interval"));
-            int maxSlots = Integer.parseInt(request.getParameter("maxSlots"));
-            String adminUsername = request.getParameter("adminUsername");
+        protected void doPost(HttpServletRequest request, HttpServletResponse response)
+                throws ServletException, IOException {
+            HttpSession session = request.getSession(false);
+            User user = (User) session.getAttribute("user");
 
-            // Create a BookingList object
-            BookingList newList = new BookingList(ID,courseId,userId,description,location,startTime,interval,maxSlots);
+            if (user != null && user.isAdmin()) {
+                try {
+                    String description = request.getParameter("description");
+                    String location = request.getParameter("location");
+                    Timestamp startTime = Timestamp.valueOf(request.getParameter("start").replace("T", " ") + ":00");
+                    int interval = Integer.parseInt(request.getParameter("interval"));
+                    int maxSlots = Integer.parseInt(request.getParameter("maxSlots"));
+                    int courseId = Integer.parseInt(request.getParameter("courseID")); // Get course ID from the form
 
-            // Use ListDAO to create the list
-            ListDAO listDao = new ListDAO();
-            boolean isSuccess = listDao.createList(newList);
+                    // Instantiate a new BookingList using the admin's user ID from the session
+                    BookingList newList = new BookingList(
+                            0, // ID will be set by the database
+                            courseId,
+                            user.getId(), // Use the admin's user ID from the session
+                            description,
+                            location,
+                            startTime,
+                            interval,
+                            maxSlots
+                    );
 
-            if (isSuccess) {
-                // Redirect or forward to success page or admin dashboard
-                response.sendRedirect("dashboard.jsp");
+                    ListDAO listDao = new ListDAO();
+                    boolean isSuccess = listDao.createList(newList);
+
+                    if (isSuccess) {
+                        // Set session attributes for successful creation
+                        session.setAttribute("bookingStatus", "success");
+                        session.setAttribute("bookingMessage", "List has been successfully created.");
+                        response.sendRedirect("bookingConfirmation.jsp");
+                    } else {
+                        // Set session attributes for failure
+                        session.setAttribute("bookingStatus", "error");
+                        session.setAttribute("bookingMessage", "Unable to create the list.");
+                        response.sendRedirect("bookingConfirmation.jsp");
+                    }
+
+                } catch (Exception e) {
+                    // Set session attributes for error due to invalid input
+                    session.setAttribute("bookingStatus", "error");
+                    session.setAttribute("bookingMessage", "Invalid input format.");
+                    response.sendRedirect("bookingConfirmation.jsp");
+                }
+
             } else {
-                // Handle failure: set error message and forward back to form
-                request.setAttribute("errorMessage", "Something went wrong when creating the list");
+                response.sendRedirect("login.jsp");
             }
-        } else {
-            // If user is not admin, redirect to login or unauthorized page
-            request.getRequestDispatcher("login.jsp").forward(request, response);
         }
-    }
-
-    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("dashboard.jsp").forward(request, response);
+        // Redirect to the createList.jsp page
+        response.sendRedirect("createList.jsp");
     }
 }
+
