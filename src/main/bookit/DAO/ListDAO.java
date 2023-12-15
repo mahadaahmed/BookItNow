@@ -2,6 +2,7 @@ package main.bookit.DAO;
 
 import main.bookit.Model.BookingList;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
@@ -161,6 +162,152 @@ public class ListDAO {
         }
         return availableSlots;
     }
+
+
+//------------------------------------------------------For ADMIN ------------------------------------------------------//
+
+
+    // In ListDAO.java
+    public boolean createList(BookingList newList) {
+        // Implementation to insert a new list into the database
+        // Return true if insertion is successful, false otherwise
+        Boolean inserted = false;
+
+        int courseId = newList.getCourseId();
+        int userId = newList.getUserId();
+        String description = newList.getDescription();
+        String location = newList.getLocation();
+        Timestamp start = newList.getStart();
+        int interval = newList.getInterval();
+        int maxSlots = newList.getMaxSlots();
+
+
+        String sql = "INSERT INTO booking.lists (course_id, user_id, description, location, start, interval, max_slots) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?);";
+
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, courseId); // Set courseId from newList object
+            pstmt.setInt(2, userId); // Set the username directly or get it from newList if it varies
+            pstmt.setString(3, description); // Set description from newList object
+            pstmt.setString(4, location); // Set location from newList object
+            pstmt.setTimestamp(5, start); // Set start from newList object, ensure this is a Timestamp object
+            pstmt.setInt(6, interval); // Set interval from newList object
+            pstmt.setInt(7, maxSlots); // Set maxSlots from newList object
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                // The insert was successful.
+                System.out.println("The insert was successful");
+                inserted = true;
+            } else {
+                // The insert failed.
+                System.out.println("The insert failed!!");
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return inserted;
+    }
+
+    public boolean deleteList(int listId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        boolean success = false;
+
+        try {
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            conn.setAutoCommit(false); // Start transaction
+
+            // First, delete any reservations associated with the list
+            String deleteReservationsSql = "DELETE FROM booking.reservations WHERE list_id = ?";
+            pstmt = conn.prepareStatement(deleteReservationsSql);
+            pstmt.setInt(1, listId);
+            pstmt.executeUpdate();
+
+            // Then, delete the list itself
+            String deleteListSql = "DELETE FROM booking.lists WHERE id = ?";
+            pstmt = conn.prepareStatement(deleteListSql);
+            pstmt.setInt(1, listId);
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                success = true;
+            }
+
+            conn.commit(); // Commit transaction
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback(); // Rollback transaction in case of error
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return success;
+    }
+
+    public List<BookingList> getListsByAdmin(int adminUserId) {
+        List<BookingList> listsByAdmin = new ArrayList<>();
+        String sql = "SELECT * FROM booking.lists WHERE user_id = ?;";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, adminUserId); // Set the admin user ID
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    BookingList bookingList = new BookingList(
+                            rs.getInt("id"),
+                            rs.getInt("course_id"),
+                            rs.getInt("user_id"),
+                            rs.getString("description"),
+                            rs.getString("location"),
+                            rs.getTimestamp("start"),
+                            rs.getInt("interval"),
+                            rs.getInt("max_slots")
+                    );
+                    // Optionally, you might want to set the admin's username too
+                    bookingList.setAdminUsername(new UserDAO().getAdminUsernameById(adminUserId));
+                    listsByAdmin.add(bookingList);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle exceptions, possibly rethrow as a custom exception
+        }
+
+        return listsByAdmin;
+    }
+
+    public boolean addCourseAccess(int userId, int courseId) {
+        String sql = "INSERT INTO booking.course_access (user_id, course_id) VALUES (?, ?);";
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, courseId);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+
 }
 
 

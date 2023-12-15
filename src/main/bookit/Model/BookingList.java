@@ -37,9 +37,7 @@ public class BookingList {
         this.maxSlots = maxSlots;
     }
 
-    public BookingList(int id) {
-        this.id = id;
-    }
+
 
     public int getId() {
         return id;
