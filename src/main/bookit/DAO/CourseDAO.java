@@ -74,5 +74,28 @@ public class CourseDAO {
         return course;
     }
 
+
+    public List<Course> getCoursesForUser(int userId) {
+        List<Course> accessibleCourses = new ArrayList<>();
+        String sql = "SELECT c.* FROM booking.courses c JOIN booking.course_access ca ON c.id = ca.course_id WHERE ca.user_id = ?;";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Course course = new Course(rs.getInt("id"), rs.getString("title"));
+                accessibleCourses.add(course);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle exceptions
+        }
+
+        return accessibleCourses;
+    }
+
     // Additional methods to handle other CRUD operations could be added here
 }

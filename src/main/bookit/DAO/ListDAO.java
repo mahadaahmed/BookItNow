@@ -258,6 +258,55 @@ public class ListDAO {
         return success;
     }
 
+    public List<BookingList> getListsByAdmin(int adminUserId) {
+        List<BookingList> listsByAdmin = new ArrayList<>();
+        String sql = "SELECT * FROM booking.lists WHERE user_id = ?;";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, adminUserId); // Set the admin user ID
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    BookingList bookingList = new BookingList(
+                            rs.getInt("id"),
+                            rs.getInt("course_id"),
+                            rs.getInt("user_id"),
+                            rs.getString("description"),
+                            rs.getString("location"),
+                            rs.getTimestamp("start"),
+                            rs.getInt("interval"),
+                            rs.getInt("max_slots")
+                    );
+                    // Optionally, you might want to set the admin's username too
+                    bookingList.setAdminUsername(new UserDAO().getAdminUsernameById(adminUserId));
+                    listsByAdmin.add(bookingList);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle exceptions, possibly rethrow as a custom exception
+        }
+
+        return listsByAdmin;
+    }
+
+    public boolean addCourseAccess(int userId, int courseId) {
+        String sql = "INSERT INTO booking.course_access (user_id, course_id) VALUES (?, ?);";
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, courseId);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 
 }
 
