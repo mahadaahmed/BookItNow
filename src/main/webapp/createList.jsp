@@ -64,17 +64,10 @@
 <div class="container">
     <h2>Create a New List</h2>
     <form action="${pageContext.request.contextPath}/createList" method="post">
-        <div>
-            <label for="ID">ID:</label>
-            <input type="text" id="ID" name="ID" required>
-        </div>
+        <!-- Removed ID input as it should be set by the database automatically -->
         <div>
             <label for="courseID">Course ID:</label>
             <input type="text" id="courseID" name="courseID" required>
-        </div>
-        <div>
-            <label for="userID">User ID:</label>
-            <input type="text" id="userID" name="userID" required>
         </div>
         <div>
             <label for="description">Description:</label>
@@ -84,27 +77,25 @@
             <label for="location">Location:</label>
             <input type="text" id="location" name="location" required>
         </div>
-    <div>
-        <label for="start">Start Time:</label>
-        <input type="datetime-local" id="start" name="start" required>
-    </div>
-    <div>
-        <label for="interval">Interval:</label>
-        <input type="number" id="interval" name="interval" required>
-    </div>
-    <div>
-        <label for="maxSlots">Max Slots:</label>
-        <input type="number" id="maxSlots" name="maxSlots" required>
-    </div>
-    <div>
-        <label for="adminUsername">Admin Username:</label>
-        <input type="text" id="adminUsername" name="adminUsername" required>
-    </div>
-    <div class="form-group">
-        <input type="submit" value="Create List">
-        <!-- Back to Dashboard Button -->
-        <button type="button" onclick="window.location.href='dashboard.jsp'" class="back-button">Back to Dashboard</button>
-    </div>
-</form>
+        <div>
+            <label for="start">Start Time:</label>
+            <input type="datetime-local" id="start" name="start" required>
+        </div>
+        <div>
+            <label for="interval">Interval (in minutes):</label>
+            <input type="number" id="interval" name="interval" required>
+        </div>
+        <div>
+            <label for="maxSlots">Max Slots:</label>
+            <input type="number" id="maxSlots" name="maxSlots" required>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Create List">
+            <!-- Back to Dashboard Button -->
+            <button type="button" onclick="window.location.href='dashboard.jsp'" class="back-button">Back to Dashboard</button>
+        </div>
+    </form>
+</div>
+
 </body>
 </html>
