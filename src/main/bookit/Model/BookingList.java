@@ -1,7 +1,12 @@
 package main.bookit.Model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.sql.Timestamp;
 
+@Data
+@AllArgsConstructor
 public class BookingList {
     private int id;
     private int courseId;
@@ -35,80 +40,6 @@ public class BookingList {
         this.start = start;
         this.interval = interval;
         this.maxSlots = maxSlots;
-    }
-
-
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getCourseId() {
-        return courseId;
-    }
-
-    public void setCourseId(int courseId) {
-        this.courseId = courseId;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public Timestamp getStart() {
-        return start;
-    }
-
-    public void setStart(Timestamp start) {
-        this.start = start;
-    }
-
-    public int getInterval() {
-        return interval;
-    }
-
-    public void setInterval(int interval) {
-        this.interval = interval;
-    }
-
-    public int getMaxSlots() {
-        return maxSlots;
-    }
-
-    public void setMaxSlots(int maxSlots) {
-        this.maxSlots = maxSlots;
-    }
-
-    public String getAdminUsername() {
-        return adminUsername;
-    }
-
-    public void setAdminUsername(String adminUsername) {
-        this.adminUsername = adminUsername;
     }
 
 

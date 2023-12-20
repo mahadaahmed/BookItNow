@@ -1,5 +1,8 @@
 package main.bookit.Model;
 
+import lombok.Data;
+
+@Data
 public class User {
     private int id;
     private String username;
@@ -15,56 +18,11 @@ public class User {
         this.admin = admin;
     }
 
-    // Getters and Setters
-    // ... implement getters and setters for all fields ...
-
-
-    public int getId() {
-        return id;
-    }
-
-
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public int getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(int admin) {
-        this.admin = admin;
-    }
-
     public boolean isAdmin() {
-        if(isAdmin > 0){
+        if (isAdmin > 0) {
             return true;
         }
         return false;
     }
 
-    public int getIsAdmin() {
-        return isAdmin;
-    }
-
-    public void setIsAdmin(int isAdmin) {
-        this.isAdmin = isAdmin;
-    }
 }
