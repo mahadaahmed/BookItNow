@@ -2,6 +2,9 @@ package main.bookit.Servlet;
 
 import main.bookit.Model.User;
 import main.bookit.DAO.UserDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import javax.servlet.ServletException;
@@ -11,10 +14,12 @@ import javax.servlet.http.*;
 @WebServlet(name = "LoginServlet", urlPatterns = {"/"})
 public class LoginServlet extends HttpServlet {
 
-    private UserDAO userDAO = new UserDAO();
+    private static final Logger logger = LoggerFactory.getLogger(LoginServlet.class);
+    private final UserDAO userDAO = new UserDAO();
 
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
 
         String username = request.getParameter("username");
         String password = request.getParameter("password"); // Assume this is hashed
@@ -25,9 +30,9 @@ public class LoginServlet extends HttpServlet {
                 HttpSession session = request.getSession();
                 session.setAttribute("user", user); // Store the User object
 
-                System.out.println("User ID: " + user.getId()); // Check if attributes are set
-                System.out.println("Username: " + user.getUsername());
-                System.out.println("Is Admin: " + user.isAdmin());
+                logger.info("User ID: {}", user.getId()); // Log instead of printing to console
+                logger.info("Username: {}", user.getUsername());
+                logger.info("Is Admin: {}", user.isAdmin());
 
                 response.sendRedirect("dashboard"); // URL pattern for DashboardServlet
             } else {
@@ -35,13 +40,8 @@ public class LoginServlet extends HttpServlet {
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             }
         } catch (Exception e) {
-            log("Database error", e); // Use a logger to log the error
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database error occurred.");
-            try {
-                throw e;
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
+            logger.error("Unhandled exception", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
         }
     }
 
