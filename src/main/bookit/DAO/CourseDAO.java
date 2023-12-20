@@ -1,97 +1,56 @@
 package main.bookit.DAO;
 
 import main.bookit.Model.Course;
-import main.bookit.config.Config;
+import main.bookit.DAO.utils.DatabaseUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CourseDAO {
 
     public List<Course> getAllCourses() {
-        List<Course> courses = new ArrayList<>();
         String sql = "SELECT id, title FROM booking.courses";
-
-        try (Connection conn = Config.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                Course course = new Course(rs.getInt("id"), rs.getString("title"));
-                courses.add(course);
-            }
-        } catch (SQLException e) {
-            // Handle exceptions
-            e.printStackTrace();
-        }
-
-        return courses;
-    }
-
-    public String getCourseTitleById(int courseId) {
-        String title = null;
-        String sql = "SELECT title FROM booking.courses WHERE id = ?";
-
-        try (Connection conn = Config.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, courseId);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    title = rs.getString("title");
+        return DatabaseUtil.executeQuery(sql, new DatabaseUtil.ResultSetHandler<List<Course>>() {
+            @Override
+            public List<Course> handle(ResultSet rs) throws SQLException {
+                List<Course> courses = new ArrayList<>();
+                while (rs.next()) {
+                    courses.add(new Course(rs.getInt("id"), rs.getString("title")));
                 }
+                return courses;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return title;
+        });
     }
-
 
     public Course getCourseById(int courseId) {
-        Course course = null;
         String sql = "SELECT id, title FROM booking.courses WHERE id = ?";
-
-        try (Connection conn = Config.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, courseId);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
+        return DatabaseUtil.executeQuery(sql, new DatabaseUtil.ResultSetHandler<Course>() {
+            @Override
+            public Course handle(ResultSet rs) throws SQLException {
                 if (rs.next()) {
-                    course = new Course(rs.getInt("id"), rs.getString("title"));
+                    return new Course(rs.getInt("id"), rs.getString("title"));
                 }
+                return null;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return course;
+        }, courseId);
     }
 
-
     public List<Course> getCoursesForUser(int userId) {
-        List<Course> accessibleCourses = new ArrayList<>();
-        String sql = "SELECT c.* FROM booking.courses c JOIN booking.course_access ca ON c.id = ca.course_id WHERE ca.user_id = ?;";
-
-        try (Connection conn = Config.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                Course course = new Course(rs.getInt("id"), rs.getString("title"));
-                accessibleCourses.add(course);
+        String sql = "SELECT c.* FROM booking.courses c JOIN booking.course_access ca ON c.id = ca.course_id WHERE ca.user_id = ?";
+        return DatabaseUtil.executeQuery(sql, new DatabaseUtil.ResultSetHandler<List<Course>>() {
+            @Override
+            public List<Course> handle(ResultSet rs) throws SQLException {
+                List<Course> accessibleCourses = new ArrayList<>();
+                while (rs.next()) {
+                    accessibleCourses.add(new Course(rs.getInt("id"), rs.getString("title")));
+                }
+                return accessibleCourses;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // Handle exceptions
-        }
-
-        return accessibleCourses;
+        }, userId);
     }
 
     // Additional methods to handle other CRUD operations could be added here
