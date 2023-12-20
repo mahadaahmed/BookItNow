@@ -12,15 +12,12 @@ public class ListDAO {
 
     public List<BookingList> getAllAvailableLists() {
         String sql = "SELECT * FROM booking.lists;";
-        return DatabaseUtil.executeQuery(sql, new DatabaseUtil.ResultSetHandler<List<BookingList>>() {
-            @Override
-            public List<BookingList> handle(ResultSet rs) throws SQLException {
-                List<BookingList> lists = new ArrayList<>();
-                while (rs.next()) {
-                    lists.add(mapToBookingList(rs));
-                }
-                return lists;
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            List<BookingList> lists = new ArrayList<>();
+            while (rs.next()) {
+                lists.add(mapToBookingList(rs));
             }
+            return lists;
         });
     }
 
@@ -39,52 +36,43 @@ public class ListDAO {
 
     public List<BookingList> getListsForCourse(int courseId) {
         String sql = "SELECT l.*, u.username AS admin_username FROM booking.lists l JOIN booking.users u ON l.user_id = u.id WHERE l.course_id = ?";
-        return DatabaseUtil.executeQuery(sql, new DatabaseUtil.ResultSetHandler<List<BookingList>>() {
-            @Override
-            public List<BookingList> handle(ResultSet rs) throws SQLException {
-                List<BookingList> listsForCourse = new ArrayList<>();
-                while (rs.next()) {
-                    BookingList bookingList = new BookingList(
-                            rs.getInt("id"),
-                            rs.getInt("course_id"),
-                            rs.getString("admin_username"),
-                            rs.getString("description"),
-                            rs.getString("location"),
-                            rs.getTimestamp("start"),
-                            rs.getInt("interval"),
-                            rs.getInt("max_slots")
-                    );
-                    listsForCourse.add(bookingList);
-                }
-                return listsForCourse;
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            List<BookingList> listsForCourse = new ArrayList<>();
+            while (rs.next()) {
+                BookingList bookingList = new BookingList(
+                        rs.getInt("id"),
+                        rs.getInt("course_id"),
+                        rs.getString("admin_username"),
+                        rs.getString("description"),
+                        rs.getString("location"),
+                        rs.getTimestamp("start"),
+                        rs.getInt("interval"),
+                        rs.getInt("max_slots")
+                );
+                listsForCourse.add(bookingList);
             }
+            return listsForCourse;
         }, courseId);
     }
 
     public BookingList getBookingListById(int listId) {
         String sql = "SELECT * FROM booking.lists WHERE id = ?";
-        return DatabaseUtil.executeQuery(sql, new DatabaseUtil.ResultSetHandler<BookingList>() {
-            @Override
-            public BookingList handle(ResultSet rs) throws SQLException {
-                if (rs.next()) {
-                    return mapToBookingList(rs);
-                }
-                return null;
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            if (rs.next()) {
+                return mapToBookingList(rs);
             }
+            return null;
         }, listId);
     }
 
     public List<Integer> getBookedSlotSequences(int listId) {
         String sql = "SELECT sequence FROM booking.reservations WHERE list_id = ? ORDER BY sequence ASC;";
-        return DatabaseUtil.executeQuery(sql, new DatabaseUtil.ResultSetHandler<List<Integer>>() {
-            @Override
-            public List<Integer> handle(ResultSet rs) throws SQLException {
-                List<Integer> bookedSlots = new ArrayList<>();
-                while (rs.next()) {
-                    bookedSlots.add(rs.getInt("sequence"));
-                }
-                return bookedSlots;
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            List<Integer> bookedSlots = new ArrayList<>();
+            while (rs.next()) {
+                bookedSlots.add(rs.getInt("sequence"));
             }
+            return bookedSlots;
         }, listId);
     }
 
@@ -125,15 +113,12 @@ public class ListDAO {
 
     public List<BookingList> getListsByAdmin(int adminUserId) {
         String sql = "SELECT * FROM booking.lists WHERE user_id = ?";
-        return DatabaseUtil.executeQuery(sql, new DatabaseUtil.ResultSetHandler<List<BookingList>>() {
-            @Override
-            public List<BookingList> handle(ResultSet rs) throws SQLException {
-                List<BookingList> listsByAdmin = new ArrayList<>();
-                while (rs.next()) {
-                    listsByAdmin.add(mapToBookingList(rs));
-                }
-                return listsByAdmin;
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            List<BookingList> listsByAdmin = new ArrayList<>();
+            while (rs.next()) {
+                listsByAdmin.add(mapToBookingList(rs));
             }
+            return listsByAdmin;
         }, adminUserId);
     }
 

@@ -1,7 +1,6 @@
 package main.bookit.Servlet;
 
 import main.bookit.DAO.BookingDAO;
-import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;

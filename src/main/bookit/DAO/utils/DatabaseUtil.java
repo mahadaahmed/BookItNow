@@ -1,6 +1,5 @@
 package main.bookit.DAO.utils;
 
-import main.bookit.DAO.UserDAO;
 import main.bookit.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

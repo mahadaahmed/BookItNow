@@ -8,19 +8,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookingDAO {
+    private List<Reservation> executeQueryAndMapToReservations(String sql, Object... params) {
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            List<Reservation> reservations = new ArrayList<>();
+            while (rs.next()) {
+                reservations.add(mapToReservation(rs));
+            }
+            return reservations;
+        }, params);
+    }
 
     public List<Reservation> getBookingsForUser(int userId) {
         String sql = "SELECT * FROM booking.reservations WHERE user_id = ?";
-        return DatabaseUtil.executeQuery(sql, new DatabaseUtil.ResultSetHandler<List<Reservation>>() {
-            @Override
-            public List<Reservation> handle(ResultSet rs) throws SQLException {
-                List<Reservation> bookings = new ArrayList<>();
-                while (rs.next()) {
-                    bookings.add(mapToReservation(rs));
-                }
-                return bookings;
-            }
-        }, userId);
+        return executeQueryAndMapToReservations(sql, userId);
     }
 
     private Reservation mapToReservation(ResultSet rs) throws SQLException {
@@ -41,14 +41,11 @@ public class BookingDAO {
 
     public boolean isTimeslotAvailable(int listId, int sequence) {
         String sql = "SELECT COUNT(*) AS slotCount FROM booking.reservations WHERE list_id = ? AND sequence = ?";
-        return DatabaseUtil.executeQuery(sql, new DatabaseUtil.ResultSetHandler<Boolean>() {
-            @Override
-            public Boolean handle(ResultSet rs) throws SQLException {
-                if (rs.next()) {
-                    return rs.getInt("slotCount") == 0;
-                }
-                return false;
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            if (rs.next()) {
+                return rs.getInt("slotCount") == 0;
             }
+            return false;
         }, listId, sequence);
     }
 
@@ -60,16 +57,7 @@ public class BookingDAO {
 
     public List<Reservation> getAllReservations() {
         String sql = "SELECT * FROM booking.reservations";
-        return DatabaseUtil.executeQuery(sql, new DatabaseUtil.ResultSetHandler<List<Reservation>>() {
-            @Override
-            public List<Reservation> handle(ResultSet rs) throws SQLException {
-                List<Reservation> reservations = new ArrayList<>();
-                while (rs.next()) {
-                    reservations.add(mapToReservation(rs));
-                }
-                return reservations;
-            }
-        });
+        return executeQueryAndMapToReservations(sql);
     }
 
 }
