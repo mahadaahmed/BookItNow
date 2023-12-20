@@ -1,6 +1,7 @@
 package main.bookit.DAO;
 
 import main.bookit.Model.User;
+import main.bookit.config.Config;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,14 +10,53 @@ import java.util.List;
 public class UserDAO {
 
     // Database connection details
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/bookingdb";
-    private static final String USER = "postgres";
-    private static final String PASS = "12345";
+    private final Config config = Config.getInstance();
+    private final String dbURL = config.getDbURL();
+    private final String dbUSER = config.getDbUSER();
+    private final String dbPASS = config.getDbPASS();
 
+    static {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            // Handle the exception, possibly rethrow or log it
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    public User authenticateUser(String username, String hashedPassword) throws SQLException {
+        String sql = "SELECT id, username, admin FROM booking.users WHERE username = ? AND password = ?";
+
+        try (Connection conn = DriverManager.getConnection(config.getDbURL(), config.getDbUSER(), config.getDbPASS());
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashedPassword); // Assuming password is hashed
+
+            DatabaseMetaData metaData = conn.getMetaData();
+            int jdbcVersion = metaData.getJDBCMajorVersion();
+
+            System.out.println("JDBC Major Version: " + jdbcVersion);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new User(
+                            rs.getInt("id"),
+                            rs.getString("username"),
+                            null,
+                            rs.getInt("admin")
+                    );
+                }
+            }
+        } catch (Exception e){
+            throw e;
+        }
+        return null; // User not found or incorrect password
+    }
     public User getUserByUsername(String username) {
         String sql = "SELECT * FROM booking.users WHERE username = ?";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
@@ -42,7 +82,7 @@ public class UserDAO {
         String username = null;
         String sql = "SELECT username FROM booking.users WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
@@ -63,7 +103,7 @@ public class UserDAO {
         String username = null;
         String sql = "SELECT username FROM booking.users WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
@@ -84,7 +124,7 @@ public class UserDAO {
         List<User> users = new ArrayList<>();
         String sql = "SELECT id, username, password, admin FROM booking.users;";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -111,7 +151,7 @@ public class UserDAO {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM booking.users WHERE id NOT IN (SELECT user_id FROM booking.course_access WHERE course_id = ?)";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, courseId);
@@ -135,7 +175,7 @@ public class UserDAO {
     public boolean createUser(String username, String password, boolean isAdmin) {
         String sql = "INSERT INTO booking.users (username, password, admin) VALUES (?, ?, ?);";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
