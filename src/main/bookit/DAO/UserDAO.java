@@ -90,6 +90,4 @@ public class UserDAO {
         int affectedRows = DatabaseUtil.executeUpdate(sql, username, password, isAdmin ? 1 : 0);
         return affectedRows > 0;
     }
-
-    // Additional methods can be refactored similarly...
 }

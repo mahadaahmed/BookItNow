@@ -52,6 +52,4 @@ public class CourseDAO {
             }
         }, userId);
     }
-
-    // Additional methods to handle other CRUD operations could be added here
 }
