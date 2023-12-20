@@ -2,10 +2,9 @@ package main.bookit.DAO;
 
 import main.bookit.DAO.utils.DatabaseUtil;
 import main.bookit.Model.User;
+import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,34 +12,27 @@ public class UserDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
 
-    public User authenticateUser(String username, String hashedPassword) {
-        String sql = "SELECT id, username, admin FROM booking.users WHERE username = ? AND password = ?";
+    public User authenticateUser(String username, String plaintextPassword) {
+        String sql = "SELECT id, username, password, admin FROM booking.users WHERE username = ?";
         try {
             return DatabaseUtil.executeQuery(sql, rs -> {
                 if (rs.next()) {
-                    return new User(
-                            rs.getInt("id"),
-                            rs.getString("username"),
-                            null,
-                            rs.getInt("admin")
-                    );
+                    String storedHash = rs.getString("password");
+                    if (BCrypt.checkpw(plaintextPassword, storedHash)) {
+                        int admin = rs.getInt("admin");
+                        return new User(rs.getInt("id"), rs.getString("username"), null, admin);
+                    }
                 }
                 return null;
-            }, username, hashedPassword);
+            }, username);
         } catch (Exception e) {
             logger.error("Error authenticating user", e);
             throw new RuntimeException(e);
         }
     }
 
-    public String getAdminUsernameById(int userId) {
-        String sql = "SELECT username FROM booking.users WHERE id = ?";
-        return DatabaseUtil.executeQuery(sql, rs -> {
-            if (rs.next()) {
-                return rs.getString("username");
-            }
-            return null;
-        }, userId);
+    public static String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
     public String getUsernameById(int userId) {
@@ -85,9 +77,16 @@ public class UserDAO {
         }, courseId);
     }
 
-    public boolean createUser(String username, String password, boolean isAdmin) {
+
+    public boolean createUser(String username, String plaintextPassword, boolean isAdmin) {
         String sql = "INSERT INTO booking.users (username, password, admin) VALUES (?, ?, ?);";
-        int affectedRows = DatabaseUtil.executeUpdate(sql, username, password, isAdmin ? 1 : 0);
+        String hashedPassword = hashPassword(plaintextPassword); // Hash the password with bcrypt
+        int affectedRows = DatabaseUtil.executeUpdate(sql, username, hashedPassword, isAdmin ? 1 : 0);
         return affectedRows > 0;
     }
+
+
+
+
+
 }
