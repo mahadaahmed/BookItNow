@@ -1,6 +1,7 @@
 package main.bookit.DAO;
 
 import main.bookit.Model.Course;
+import main.bookit.config.Config;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -8,15 +9,17 @@ import java.util.List;
 
 public class CourseDAO {
 
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/bookingdb";
-    private static final String USER = "postgres";
-    private static final String PASS = "12345";
+    // Database connection details
+    private final Config config = Config.getInstance();
+    private final String dbURL = config.getDbURL();
+    private final String dbUSER = config.getDbUSER();
+    private final String dbPASS = config.getDbPASS();
 
     public List<Course> getAllCourses() {
         List<Course> courses = new ArrayList<>();
         String sql = "SELECT id, title FROM booking.courses";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             ResultSet rs = pstmt.executeQuery();
@@ -37,7 +40,7 @@ public class CourseDAO {
         String title = null;
         String sql = "SELECT title FROM booking.courses WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, courseId);
@@ -58,7 +61,7 @@ public class CourseDAO {
         Course course = null;
         String sql = "SELECT id, title FROM booking.courses WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, courseId);
@@ -79,7 +82,7 @@ public class CourseDAO {
         List<Course> accessibleCourses = new ArrayList<>();
         String sql = "SELECT c.* FROM booking.courses c JOIN booking.course_access ca ON c.id = ca.course_id WHERE ca.user_id = ?;";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);

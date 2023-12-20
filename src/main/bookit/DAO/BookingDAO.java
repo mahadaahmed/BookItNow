@@ -1,6 +1,7 @@
 package main.bookit.DAO;
 
 import main.bookit.Model.Reservation;
+import main.bookit.config.Config;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -8,15 +9,18 @@ import java.util.List;
 
 public class BookingDAO {
 
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/bookingdb";
-    private static final String USER = "postgres";
-    private static final String PASS = "12345";
+
+    // Database connection details
+    private final Config config = Config.getInstance();
+    private final String dbURL = config.getDbURL();
+    private final String dbUSER = config.getDbUSER();
+    private final String dbPASS = config.getDbPASS();
 
     public List<Reservation> getBookingsForUser(int userId) {
         List<Reservation> bookings = new ArrayList<>();
         String sql = "SELECT * FROM booking.reservations WHERE user_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
@@ -44,7 +48,7 @@ public class BookingDAO {
         // SQL query to insert a new reservation
         String sql = "INSERT INTO booking.reservations (list_id, user_id, sequence) VALUES (?, ?, ?);";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, listId);
@@ -61,7 +65,7 @@ public class BookingDAO {
 
     public boolean isTimeslotAvailable(int listId, int sequence) {
         String sql = "SELECT COUNT(*) AS slotCount FROM booking.reservations WHERE list_id = ? AND sequence = ?";
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, listId);
@@ -80,7 +84,7 @@ public class BookingDAO {
     public boolean cancelBooking(int bookingId) {
         String sql = "DELETE FROM booking.reservations WHERE id = ?;";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, bookingId);
@@ -96,7 +100,7 @@ public class BookingDAO {
         List<Reservation> reservations = new ArrayList<>();
         String sql = "SELECT * FROM booking.reservations";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             try (ResultSet rs = pstmt.executeQuery()) {

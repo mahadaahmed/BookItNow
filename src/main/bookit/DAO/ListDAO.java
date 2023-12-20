@@ -1,6 +1,7 @@
 package main.bookit.DAO;
 
 import main.bookit.Model.BookingList;
+import main.bookit.config.Config;
 
 import java.io.IOException;
 import java.sql.*;
@@ -10,15 +11,18 @@ import java.util.*;
 public class ListDAO {
 
     // Database connection details
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/bookingdb";
-    private static final String USER = "postgres";
-    private static final String PASS = "12345";
+
+    // Database connection details
+    private final Config config = Config.getInstance();
+    private final String dbURL = config.getDbURL();
+    private final String dbUSER = config.getDbUSER();
+    private final String dbPASS = config.getDbPASS();
 
     public List<BookingList> getAllAvailableLists() {
         List<BookingList> lists = new ArrayList<>();
         String sql = "SELECT * FROM booking.lists;"; // Adjust this query as necessary
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -53,7 +57,7 @@ public class ListDAO {
                 "LEFT JOIN booking.reservations r ON l.id = r.list_id " +
                 "GROUP BY l.id, l.max_slots;";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -73,7 +77,7 @@ public class ListDAO {
         List<BookingList> listsForCourse = new ArrayList<>();
         String sql = "SELECT l.*, u.username AS admin_username FROM booking.lists l JOIN booking.users u ON l.user_id = u.id WHERE l.course_id = ?;";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, courseId);
@@ -102,7 +106,7 @@ public class ListDAO {
         BookingList bookingList = null;
         String sql = "SELECT * FROM booking.lists WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, listId);
@@ -135,7 +139,7 @@ public class ListDAO {
         List<Integer> bookedSlots = new ArrayList<>();
         String sql = "SELECT sequence FROM booking.reservations WHERE list_id = ? ORDER BY sequence ASC;";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, listId);
@@ -186,7 +190,7 @@ public class ListDAO {
                 "VALUES (?, ?, ?, ?, ?, ?, ?);";
 
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, courseId); // Set courseId from newList object
@@ -218,7 +222,7 @@ public class ListDAO {
         boolean success = false;
 
         try {
-            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
             conn.setAutoCommit(false); // Start transaction
 
             // First, delete any reservations associated with the list
@@ -262,7 +266,7 @@ public class ListDAO {
         List<BookingList> listsByAdmin = new ArrayList<>();
         String sql = "SELECT * FROM booking.lists WHERE user_id = ?;";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, adminUserId); // Set the admin user ID
@@ -294,7 +298,7 @@ public class ListDAO {
 
     public boolean addCourseAccess(int userId, int courseId) {
         String sql = "INSERT INTO booking.course_access (user_id, course_id) VALUES (?, ?);";
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             pstmt.setInt(2, courseId);
