@@ -2,6 +2,8 @@ package main.bookit.config;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Properties;
 
 public class Config {
@@ -35,15 +37,9 @@ public class Config {
         }
     }
 
-    public String getDbURL() {
-        return properties.getProperty("db.url", System.getenv("DB_URL"));
+    public Connection getConnection(){
+
+        return DriverManager.getConnection( properties.getProperty("db.url",  properties.getProperty("db.user",  properties.getProperty("db.pass");
     }
 
-    public String getDbUSER() {
-        return properties.getProperty("db.user", System.getenv("DB_USER"));
-    }
-
-    public String getDbPASS() {
-        return properties.getProperty("db.pass", System.getenv("DB_PASS"));
-    }
 }

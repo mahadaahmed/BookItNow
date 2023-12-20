@@ -2,6 +2,8 @@ package main.bookit.DAO;
 
 import main.bookit.Model.User;
 import main.bookit.config.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,17 +11,14 @@ import java.util.List;
 
 public class UserDAO {
 
-    // Database connection details
-    private final Config config = Config.getInstance();
-    private final String dbURL = config.getDbURL();
-    private final String dbUSER = config.getDbUSER();
-    private final String dbPASS = config.getDbPASS();
+    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
 
     static {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             // Handle the exception, possibly rethrow or log it
+            logger.error("PostgreSQL Driver not found", e);
             throw new ExceptionInInitializerError(e);
         }
     }
@@ -27,7 +26,7 @@ public class UserDAO {
     public User authenticateUser(String username, String hashedPassword) throws SQLException {
         String sql = "SELECT id, username, admin FROM booking.users WHERE username = ? AND password = ?";
 
-        try (Connection conn = DriverManager.getConnection(config.getDbURL(), config.getDbUSER(), config.getDbPASS());
+        try (Connection conn = Config.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
@@ -49,6 +48,7 @@ public class UserDAO {
                 }
             }
         } catch (Exception e){
+            logger.error("Error authenticating user", e);
             throw e;
         }
         return null; // User not found or incorrect password
@@ -56,7 +56,7 @@ public class UserDAO {
     public User getUserByUsername(String username) {
         String sql = "SELECT * FROM booking.users WHERE username = ?";
 
-        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
+        try (Connection conn = Config.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
@@ -82,7 +82,7 @@ public class UserDAO {
         String username = null;
         String sql = "SELECT username FROM booking.users WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
+        try (Connection conn = Config.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
@@ -93,7 +93,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting admin username by ID", e);
         }
         return username;
     }
@@ -103,7 +103,7 @@ public class UserDAO {
         String username = null;
         String sql = "SELECT username FROM booking.users WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
+        try (Connection conn = Config.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
@@ -114,6 +114,7 @@ public class UserDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            logger.error("Error getting username by ID", e);
             // Handle exceptions or rethrow as needed
         }
 
@@ -124,7 +125,7 @@ public class UserDAO {
         List<User> users = new ArrayList<>();
         String sql = "SELECT id, username, password, admin FROM booking.users;";
 
-        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
+        try (Connection conn = Config.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -140,7 +141,7 @@ public class UserDAO {
                 users.add(user);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting Users", e);
             // Handle the exception
         }
         return users;
@@ -151,7 +152,7 @@ public class UserDAO {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM booking.users WHERE id NOT IN (SELECT user_id FROM booking.course_access WHERE course_id = ?)";
 
-        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
+        try (Connection conn = Config.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, courseId);
@@ -167,7 +168,8 @@ public class UserDAO {
                 users.add(user);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            logger.error("Error getting Users without access", e);
         }
         return users;
     }
@@ -175,7 +177,7 @@ public class UserDAO {
     public boolean createUser(String username, String password, boolean isAdmin) {
         String sql = "INSERT INTO booking.users (username, password, admin) VALUES (?, ?, ?);";
 
-        try (Connection conn = DriverManager.getConnection(dbURL, dbUSER, dbPASS);
+        try (Connection conn = Config.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
@@ -185,12 +187,11 @@ public class UserDAO {
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            logger.error("Error getting creating user", e);
             return false;
         }
     }
 
 }
 
-
-    // Other User-related database operations
