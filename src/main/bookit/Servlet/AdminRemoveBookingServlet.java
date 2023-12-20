@@ -10,7 +10,7 @@ import java.io.IOException;
 
 @WebServlet("/AdminRemoveBooking")
 public class AdminRemoveBookingServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         int bookingId = Integer.parseInt(request.getParameter("bookingId"));
 
         BookingDAO bookingDao = new BookingDAO();

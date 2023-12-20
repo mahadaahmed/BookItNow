@@ -13,7 +13,7 @@ import java.io.IOException;
 @WebServlet("/deleteList")
 public class DeleteListServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
         // Similar admin check as above
         // Get list ID from request
         int listId = Integer.parseInt(request.getParameter("listId"));

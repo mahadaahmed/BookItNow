@@ -8,9 +8,9 @@ import java.io.IOException;
 
 @WebServlet(name = "CancelBookingServlet", urlPatterns = {"/cancelBooking"})
 public class CancelBookingServlet extends HttpServlet {
-    private BookingDAO bookingDAO = new BookingDAO();
+    private final BookingDAO bookingDAO = new BookingDAO();
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         int bookingId = Integer.parseInt(request.getParameter("bookingId"));
         boolean cancelSuccess = bookingDAO.cancelBooking(bookingId);
 

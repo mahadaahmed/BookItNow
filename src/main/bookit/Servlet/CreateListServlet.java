@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 public class CreateListServlet extends HttpServlet {
 
         protected void doPost(HttpServletRequest request, HttpServletResponse response)
-                throws ServletException, IOException {
+                throws IOException {
             HttpSession session = request.getSession(false);
             User user = (User) session.getAttribute("user");
 
@@ -65,7 +65,7 @@ public class CreateListServlet extends HttpServlet {
                 response.sendRedirect("login.jsp");
             }
         }
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // Redirect to the createList.jsp page
         response.sendRedirect("createList.jsp");
     }

@@ -3,8 +3,6 @@ package main.bookit.Servlet;
 import main.bookit.DAO.BookingDAO;
 import main.bookit.DAO.CourseDAO;
 import main.bookit.DAO.ListDAO;
-import main.bookit.Model.Course;
-import main.bookit.Model.Reservation;
 import main.bookit.Model.User;
 import main.bookit.Model.BookingList;
 
@@ -17,9 +15,9 @@ import java.util.List;
 @WebServlet("/dashboard")
 public class DashboardServlet extends HttpServlet {
 
-    private BookingDAO bookingDAO = new BookingDAO();
-    private CourseDAO courseDAO = new CourseDAO();
-    private ListDAO listDAO = new ListDAO(); // Instantiate ListDAO to handle booking lists
+    private final BookingDAO bookingDAO = new BookingDAO();
+    private final CourseDAO courseDAO = new CourseDAO();
+    private final ListDAO listDAO = new ListDAO(); // Instantiate ListDAO to handle booking lists
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

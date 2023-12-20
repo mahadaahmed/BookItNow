@@ -13,7 +13,7 @@ import java.io.IOException;
 public class AdminAddBookingServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
         int listId = Integer.parseInt(request.getParameter("listId"));
         int userId = Integer.parseInt(request.getParameter("userId")); // User ID is now provided by the form
         int sequence = Integer.parseInt(request.getParameter("sequence"));
