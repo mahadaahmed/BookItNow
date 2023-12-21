@@ -14,6 +14,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <title>Dashboard</title>
   <!-- Your styles here -->
   <style>
@@ -197,17 +198,24 @@
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>Dashboard</h1>
-  <%
-    User user = (User) session.getAttribute("user");
-    CourseDAO courseDao = new CourseDAO();
-    BookingDAO bookingDao = new BookingDAO();
-    ListDAO listDao = new ListDAO();
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+<%
+  User user = (User) session.getAttribute("user");
+  CourseDAO courseDao = new CourseDAO();
+  BookingDAO bookingDao = new BookingDAO();
+  ListDAO listDao = new ListDAO();
+  SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-    if(user != null) {
-      String welcomeMessage = user.getAdmin() == 1 ? "Welcome, admin " + user.getUsername() : "Welcome, " + user.getUsername();
+%>
+<%@ include file="/common/navbar.jspf" %>
+
+
+<div class="container">
+  <!-- Welcome message and other dashboard elements -->
+  <h1>Dashboard</h1>
+    <%
+    if (user != null) {
+        // Now you can use 'user' here because it's been retrieved from the session
+        String welcomeMessage = "Welcome, " + (user.getAdmin() == 1 ? "admin " : "") + user.getUsername();
   %>
   <div class="welcome">
     <p><%= welcomeMessage %></p>
