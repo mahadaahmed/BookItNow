@@ -1,0 +1,24 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<!-- navbar.jspf -->
+<nav class="bg-gray-800 p-4">
+    <div class="container mx-auto flex items-center justify-between">
+        <div class="text-black text-lg">
+            <!-- Active link can have a distinct style such as underline or a different color -->
+            <a href="<%= request.getContextPath() %>/dashboard" class="px-4 hover:text-indigo-300 underline">Dashboard</a>
+            <a href="<%= request.getContextPath() %>/courses" class="px-4 hover:text-indigo-300">Courses</a>
+            <a href="<%= request.getContextPath() %>/bookings" class="px-4 hover:text-indigo-300">Bookings</a>
+        </div>
+        <div class="text-black text-lg">
+            <% if (request.getAttribute("user") != null) {
+                user = (User) request.getAttribute("user");
+            %>
+            <span class="px-4"><%= user.getUsername() %></span>
+            <a href="<%= request.getContextPath() %>/logout" class="px-4 hover:text-red-300">Logout</a>
+            <% } else { %>
+            <a href="<%= request.getContextPath() %>/login" class="px-4 hover:text-green-300">Login</a>
+            <a href="<%= request.getContextPath() %>/register" class="px-4 hover:text-green-300">Register</a>
+            <% } %>
+        </div>
+    </div>
+</nav>
