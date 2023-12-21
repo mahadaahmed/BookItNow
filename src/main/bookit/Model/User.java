@@ -8,7 +8,7 @@ public class User {
     private String username;
     private String password;
     private int admin; // This could be boolean, but it's an int here to match the schema
-    private int isAdmin;
+    private boolean isAdmin;
 
     // Constructor
     public User(int id, String username, String password, int admin) {
@@ -19,10 +19,7 @@ public class User {
     }
 
     public boolean isAdmin() {
-        if (isAdmin > 0) {
-            return true;
-        }
-        return false;
+        return isAdmin;
     }
 
 }
