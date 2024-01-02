@@ -124,7 +124,7 @@ public class ListDAO {
 
 
     public boolean addCourseAccess(int userId, int courseId) {
-        String sql = "INSERT INTO booking.course_access (user_id, course_id) VALUES (?, ?);";
+        String sql = "INSERT INTO booking.courseaccess (user_id, course_id) VALUES (?, ?);";
         int affectedRows = DatabaseUtil.executeUpdate(sql, userId, courseId);
         return affectedRows > 0;
     }

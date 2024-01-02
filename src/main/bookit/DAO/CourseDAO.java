@@ -29,7 +29,7 @@ public class CourseDAO {
     }
 
     public List<Course> getCoursesForUser(int userId) {
-        String sql = "SELECT c.* FROM booking.courses c JOIN booking.course_access ca ON c.id = ca.course_id WHERE ca.user_id = ?";
+        String sql = "SELECT c.* FROM booking.courses c JOIN booking.courseaccess ca ON c.id = ca.course_id WHERE ca.user_id = ?";
         return DatabaseUtil.executeQuery(sql, rs -> {
             List<Course> accessibleCourses = new ArrayList<>();
             while (rs.next()) {

@@ -9,6 +9,7 @@ public class Reservation {
     private int id;
     private int listId;
     private int userId;
+    private String username;
     private int coopId;
     private int sequence;
 }

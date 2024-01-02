@@ -19,15 +19,20 @@ public class BookingDAO {
     }
 
     public List<Reservation> getBookingsForUser(int userId) {
-        String sql = "SELECT * FROM booking.reservations WHERE user_id = ?";
+        // Updated SQL query to join with the users table and select the username
+        String sql = "SELECT r.*, u.username FROM booking.reservations r " +
+                "JOIN booking.users u ON r.user_id = u.id " +
+                "WHERE r.user_id = ?";
         return executeQueryAndMapToReservations(sql, userId);
     }
 
     private Reservation mapToReservation(ResultSet rs) throws SQLException {
+        // Assuming Reservation model does not include username
         return new Reservation(
                 rs.getInt("id"),
                 rs.getInt("list_id"),
                 rs.getInt("user_id"),
+                rs.getString("username"),
                 rs.getInt("coop_id"),
                 rs.getInt("sequence")
         );
@@ -56,7 +61,8 @@ public class BookingDAO {
     }
 
     public List<Reservation> getAllReservations() {
-        String sql = "SELECT * FROM booking.reservations";
+        // The SQL query now joins the reservations table with the users table
+        String sql = "SELECT r.*, u.username FROM booking.reservations r JOIN booking.users u ON r.user_id = u.id;";
         return executeQueryAndMapToReservations(sql);
     }
 

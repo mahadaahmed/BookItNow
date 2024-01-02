@@ -24,7 +24,7 @@ public class DeleteListServlet extends HttpServlet {
 
         if (isSuccess) {
             // Redirect or forward to success page or admin dashboard
-            //request.getRequestDispatcher("dashboard.jsp").forward(request, response);
+            //request.getRequestDispatcher("dashboardet.jsp").forward(request, response);
             response.sendRedirect("dashboard.jsp");
         } else {
             // Handle failure: set error message and forward back to form
