@@ -2,6 +2,8 @@ package main.bookit.DAO;
 
 import main.bookit.Model.BookingList;
 import main.bookit.DAO.utils.DatabaseUtil;
+import main.bookit.Model.Course;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -11,7 +13,11 @@ import java.util.List;
 public class ListDAO {
 
     public List<BookingList> getAllAvailableLists() {
-        String sql = "SELECT * FROM booking.lists;";
+        //String sql = "SELECT * FROM booking.lists;";
+        String sql = "SELECT l.*, c.title AS course_name, u.username AS admin_username " +
+                "FROM booking.lists l " +
+                "JOIN booking.courses c ON l.course_id = c.id " +
+                "JOIN booking.users u ON l.user_id = u.id;";
         return DatabaseUtil.executeQuery(sql, rs -> {
             List<BookingList> lists = new ArrayList<>();
             while (rs.next()) {
@@ -22,10 +28,11 @@ public class ListDAO {
     }
 
     private BookingList mapToBookingList(ResultSet rs) throws SQLException {
+        // Add additional parameters for course name and admin username if you added them to your BookingList model
         return new BookingList(
                 rs.getInt("id"),
-                rs.getInt("course_id"),
-                rs.getInt("user_id"),
+                rs.getInt("course_id"), // assuming you have added this to the BookingList model
+                rs.getInt("user_id"), // assuming you have added this to the BookingList model
                 rs.getString("description"),
                 rs.getString("location"),
                 rs.getTimestamp("start"),
@@ -33,6 +40,7 @@ public class ListDAO {
                 rs.getInt("max_slots")
         );
     }
+
 
     public List<BookingList> getListsForCourse(int courseId) {
         String sql = "SELECT l.*, u.username AS admin_username FROM booking.lists l JOIN booking.users u ON l.user_id = u.id WHERE l.course_id = ?";
@@ -42,7 +50,7 @@ public class ListDAO {
                 BookingList bookingList = new BookingList(
                         rs.getInt("id"),
                         rs.getInt("course_id"),
-                        rs.getString("admin_username"),
+                        rs.getInt("admin_username"),
                         rs.getString("description"),
                         rs.getString("location"),
                         rs.getTimestamp("start"),
@@ -128,4 +136,5 @@ public class ListDAO {
         int affectedRows = DatabaseUtil.executeUpdate(sql, userId, courseId);
         return affectedRows > 0;
     }
+
 }

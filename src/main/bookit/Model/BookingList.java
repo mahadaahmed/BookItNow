@@ -18,8 +18,6 @@ public class BookingList {
     private int maxSlots;
     private String adminUsername; // New field for admin's username
 
-
-
     public BookingList(int id, int courseId, int userId, String description, String location, Timestamp start, int interval, int maxSlots) {
         this.id = id;
         this.courseId = courseId;
@@ -30,17 +28,4 @@ public class BookingList {
         this.interval = interval;
         this.maxSlots = maxSlots;
     }
-
-    public BookingList(int id, int courseId, String adminUsername, String description, String location, Timestamp start, int interval, int maxSlots) {
-        this.id = id;
-        this.courseId = courseId;
-        this.adminUsername = adminUsername;
-        this.description = description;
-        this.location = location;
-        this.start = start;
-        this.interval = interval;
-        this.maxSlots = maxSlots;
-    }
-
-
 }
