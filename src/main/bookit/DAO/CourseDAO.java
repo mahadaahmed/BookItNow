@@ -51,6 +51,11 @@ public class CourseDAO {
         return affectedRows > 0;
     }
 
+    public boolean revokeCourseAccessForUser(int userId, int courseId) {
+        String sql = "DELETE FROM booking.courseaccess WHERE user_id = ? AND course_id = ?";
+        int affectedRows = DatabaseUtil.executeUpdate(sql, userId, courseId);
+        return affectedRows > 0;
+    }
 
     // In CourseDAO or a new DAO, perhaps UserCourseDAO
     public Map<User, List<Course>> getUserAccessMap() {

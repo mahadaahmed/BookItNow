@@ -56,29 +56,68 @@
     </form>
 
     <!-- Grant Access Section -->
-    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+    <!--div class="bg-white p-6 rounded-lg shadow-lg mb-6">
         <h3 class="text-lg font-semibold text-gray-800 mb-4">Grant Course Access</h3>
-        <% if (selectedCourseId != null && !selectedCourseId.isEmpty() && usersWithoutAccess != null && !usersWithoutAccess.isEmpty()) { %>
+        <!% if (selectedCourseId != null && !selectedCourseId.isEmpty() && usersWithoutAccess != null && !usersWithoutAccess.isEmpty()) { %>
         <form action="GrantCourseAccess" method="post" class="space-y-4">
             <div>
                 <label for="userSelects" class="block text-sm font-medium text-gray-700">Select User:</label>
                 <select id="userSelects" name="userId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
-                    <% for (User userItem : usersWithoutAccess) { %>
-                    <option value="<%= userItem.getId() %>"><%= userItem.getUsername() %></option>
-                    <% } %>
+                    <!% for (User userItem : usersWithoutAccess) { %>
+                    <option value="<!%= userItem.getId() %>"><!%= userItem.getUsername() %></option>
+                    <!% } %>
                 </select>
             </div>
-            <input type="hidden" name="courseId" value="<%= selectedCourseId %>">
+            <input type="hidden" name="courseId" value="<!%= selectedCourseId %>">
             <div class="flex justify-end">
                 <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Grant Access
                 </button>
             </div>
         </form>
-        <% } else { %>
+        <!% } else { %>
         <p class="text-gray-600">No users available or no course selected.</p>
-        <% } %>
+        <!% } %>
+    </div-->
+
+    <!-- Revoke Course Access Section -->
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Revoke User Access from a Course</h3>
+        <form action="revokeCourseAccess" method="post" class="space-y-4">
+            <div>
+                <label for="userRevoke" class="block text-sm font-medium text-gray-700">User:</label>
+                <select id="userRevoke" name="userId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                    <% for (Map.Entry<User, List<Course>> entry : userAccessMap.entrySet()) {
+                        User revokedUser = entry.getKey();
+                        // Display users who are not admins and have at least one course access
+                        if (!revokedUser.isAdmin() && !entry.getValue().isEmpty()) { %>
+                    <option value="<%= revokedUser.getId() %>"><%= revokedUser.getUsername() %></option>
+                    <% }
+                    } %>
+                </select>
+            </div>
+            <div>
+                <label for="courseRevoke" class="block text-sm font-medium text-gray-700">Course:</label>
+                <select id="courseRevoke" name="courseId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                    <!--% // Assuming you have a method to get the courses for a specific user
+                        // You will need to implement this in a way that the admin can select the course to revoke after selecting a user
+                        // This might be done with JavaScript to dynamically populate the courses based on the selected user
+
+                        populateCourses();
+                    %-->
+                    <% for (Course course : allCourses) { %>
+                    <option value="<%= course.getId() %>"><%= course.getTitle() %></option>
+                    <% } %>
+                </select>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Revoke Access
+                </button>
+            </div>
+        </form>
     </div>
+
 
 
     <!-- Display courses and users with access in a table -->

@@ -53,7 +53,7 @@
   <div class="message">
     <%= request.getAttribute("username") %> has been granted access to course <%= request.getAttribute("courseTitle") %> by admin <%= request.getAttribute("adminUsername") %>.
   </div>
-  <a href="dashboard.jsp" class="dashboard-link">Return to Dashboard</a>
+  <a href="courses.jsp" class="courses-link">Back to Courses</a>
 </div>
 </body>
 </html>
