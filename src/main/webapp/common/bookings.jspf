@@ -153,8 +153,7 @@
     </div>
     <% } else { %>
 
-    <div class="flex-box flex"></div>
-    <div class="border border-sky-500">
+    <div class="border border-sky-500 bg-white p-6 rounded-lg shadow-lg">
         <!-- User Panel Section -->
         <h2 class="text-3xl font-bold text-gray-800 text-center mb-6">Your Bookings</h2>
 
@@ -165,6 +164,9 @@
                 List<Reservation> bookings = new BookingDAO().getBookingsForUser(user.getId());
                 for (Reservation booking : bookings) {
                     BookingList bookingList = new ListDAO().getBookingListById(booking.getListId());
+                    if(bookingList != null) {
+                        booking.setListName(bookingList.getDescription());
+                    }
                     Course course = new CourseDAO().getCourseById(bookingList.getCourseId());
                     String courseTitle = course != null ? course.getTitle() : "Unknown Course";
                     String listType = bookingList.getDescription().substring(0,1).toUpperCase() + bookingList.getDescription().substring(1);
@@ -194,7 +196,7 @@
         </div>
     </div>
     <!-- New Booking Section -->
-    <div class="mt-5 p-5 bg-white shadow rounded-lg">
+    <div class="bg-white p-6 rounded-lg shadow-lg">
         <!-- Form and Content Here -->
         <h2 class="text-xl font-semibold text-gray-700">Make a New Booking</h2>
         <form action="bookTimeSlot" method="post">

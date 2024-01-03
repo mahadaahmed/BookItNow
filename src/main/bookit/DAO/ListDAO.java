@@ -50,7 +50,7 @@ public class ListDAO {
                 BookingList bookingList = new BookingList(
                         rs.getInt("id"),
                         rs.getInt("course_id"),
-                        rs.getInt("admin_username"),
+                        rs.getString("admin_username"),
                         rs.getString("description"),
                         rs.getString("location"),
                         rs.getTimestamp("start"),

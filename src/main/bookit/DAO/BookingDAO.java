@@ -18,12 +18,21 @@ public class BookingDAO {
         }, params);
     }
 
-    public List<Reservation> getBookingsForUser(int userId) {
+    /*public List<Reservation> getBookingsForUser(int userId) {
         // Updated SQL query to join with the users table and select the username
         String sql = "SELECT r.*, u.username FROM booking.reservations r " +
                 "JOIN booking.users u ON r.user_id = u.id " +
                 "WHERE r.user_id = ?";
         return executeQueryAndMapToReservations(sql, userId);
+    }*/
+
+    public List<Reservation> getBookingsForUser(int userId) {
+        String sql = "SELECT r.*, u.username, l.description AS listName " + // Alias the description as listName
+                "FROM booking.reservations r " +
+                "JOIN booking.users u ON r.user_id = u.id " +
+                "JOIN booking.lists l ON r.list_id = l.id " + // Ensure you're joining with the lists table
+                "WHERE r.user_id = ?;"; // Assuming you want to filter by user ID
+        return executeQueryAndMapToReservations(sql, userId); // Pass any required parameters
     }
 
     private Reservation mapToReservation(ResultSet rs) throws SQLException {

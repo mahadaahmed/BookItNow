@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @WebServlet("/dashboard")
@@ -28,7 +29,7 @@ public class DashboardServlet extends HttpServlet {
             User user = (User) session.getAttribute("user");
 
             // Set the user bookings and courses as request attributes
-            request.setAttribute("userBookings", bookingDAO.getBookingsForUser(user.getId()));
+            request.setAttribute("userBookings", Collections.unmodifiableList(bookingDAO.getBookingsForUser(user.getId())));
             request.setAttribute("courses", courseDAO.getAllCourses());
 
             // Check if the user is an admin to set admin-specific attributes
