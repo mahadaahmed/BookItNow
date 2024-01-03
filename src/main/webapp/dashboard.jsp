@@ -18,6 +18,7 @@
     }
 %>
 
+
     <!-- Main container with flexbox layout -->
     <div>
         <!-- Conditional admin panel display -->
