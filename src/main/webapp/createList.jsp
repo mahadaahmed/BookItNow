@@ -1,3 +1,5 @@
+<%@ page import="main.bookit.Model.Course" %>
+<%@ page import="java.util.List" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
@@ -63,11 +65,19 @@
 
 <div class="container">
     <h2>Create a New List</h2>
-    <form action="${pageContext.request.contextPath}/createList" method="post">
+    <form action="createList" method="post">
         <!-- Removed ID input as it should be set by the database automatically -->
         <div>
-            <label for="courseID">Course ID:</label>
-            <input type="text" id="courseID" name="courseID" required>
+            <!--label for="courseID">Course ID:</label>
+            <input type="text" id="courseID" name="courseID" required-->
+            <label for="courseID">Course:</label>
+            <select id="courseID" name="courseID" required>
+                <% List<Course> courses = (List<Course>) request.getAttribute("availableCourses");
+                    for(Course course : courses) { %>
+                <option value="<%= course.getId() %>"><%= course.getTitle() %></option>
+                <% } %>
+            </select>
+
         </div>
         <div>
             <label for="description">Description:</label>

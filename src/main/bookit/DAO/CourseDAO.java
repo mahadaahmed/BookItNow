@@ -38,4 +38,12 @@ public class CourseDAO {
             return accessibleCourses;
         }, userId);
     }
+
+    public boolean addCourse(String title) {
+        String sql = "INSERT INTO booking.courses (title) VALUES (?)";
+       // String title = course.getTitle();
+        int affectedRows = DatabaseUtil.executeUpdate(sql, title);
+
+        return affectedRows > 0;
+    }
 }

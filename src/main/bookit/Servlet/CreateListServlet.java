@@ -1,13 +1,18 @@
 package main.bookit.Servlet;
 
+import main.bookit.DAO.CourseDAO;
 import main.bookit.DAO.ListDAO;
 import main.bookit.Model.BookingList;
+import main.bookit.Model.Course;
 import main.bookit.Model.User;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.List;
 
 @WebServlet("/createList")
 public class CreateListServlet extends HttpServlet {
@@ -64,9 +69,26 @@ public class CreateListServlet extends HttpServlet {
                 response.sendRedirect("login.jsp");
             }
         }
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // Redirect to the createList.jsp page
-        response.sendRedirect("createList.jsp");
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        // Add logic to fetch the courses available to the user
+        HttpSession session = request.getSession(false);
+        User user = (User) session.getAttribute("user");
+
+        if (user != null) {
+            CourseDAO coursedao = new CourseDAO();
+            // This method should return the list of courses available to the user; you may need to implement it
+            List<Course> availableCourses = coursedao.getCoursesForUser(user.getId());
+
+            // Set the courses as a request attribute
+            request.setAttribute("availableCourses", availableCourses);
+
+            // Forward the request to the JSP
+            RequestDispatcher dispatcher = request.getRequestDispatcher("createList.jsp");
+            dispatcher.forward(request, response);
+        } else {
+            response.sendRedirect("login.jsp");
+        }
     }
+
 }
 
