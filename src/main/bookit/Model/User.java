@@ -18,8 +18,19 @@ public class User {
         this.admin = admin;
     }
 
-    public boolean isAdmin() {
-        return isAdmin;
+    public User(int id, String username) {
+        this.id = id;
+        this.username = username;
+        // Since this constructor does not receive admin information, set a default or retrieve it if needed.
+        // This field could be set to a default value or omitted if not used.
+        this.admin = 0; // or some default value or fetched from the database if necessary
+        this.isAdmin = (this.admin != 0); // This will set isAdmin to true if admin is not 0.
     }
+
+
+    public boolean isAdmin() {
+        return this.admin != 0;
+    }
+
 
 }
