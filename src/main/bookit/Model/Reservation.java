@@ -12,4 +12,5 @@ public class Reservation {
     private String username;
     private int coopId;
     private int sequence;
+    private String listName;
 }

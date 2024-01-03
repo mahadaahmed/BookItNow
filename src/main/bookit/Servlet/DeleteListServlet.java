@@ -16,6 +16,7 @@ public class DeleteListServlet extends HttpServlet {
         // Get list ID from request
         int listId = Integer.parseInt(request.getParameter("listId"));
 
+
         // Use ListDAO to delete the list
         ListDAO listDao = new ListDAO();
         boolean isSuccess = listDao.deleteList(listId);
@@ -24,7 +25,7 @@ public class DeleteListServlet extends HttpServlet {
 
         if (isSuccess) {
             // Redirect or forward to success page or admin dashboard
-            //request.getRequestDispatcher("dashboardet.jsp").forward(request, response);
+            //request.getRequestDispatcher("dashboard.jsp").forward(request, response);
             response.sendRedirect("dashboard.jsp");
         } else {
             // Handle failure: set error message and forward back to form

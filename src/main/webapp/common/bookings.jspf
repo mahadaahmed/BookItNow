@@ -25,6 +25,12 @@
     List<User> allUsers = new UserDAO().getAllUsers();
     List<BookingList> allAvailableLists = new ListDAO().getAllAvailableLists();
     List<Reservation> allReservations = new BookingDAO().getAllReservations();
+    for(Reservation reservation : allReservations) {
+        BookingList bookingList = new ListDAO().getBookingListById(reservation.getListId());
+        if(bookingList != null) {
+            reservation.setListName(bookingList.getDescription());
+        }
+    }
     List<Course> courses = new CourseDAO().getCoursesForUser(user.getId());
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     List<BookingList> listsByAdmin = new ListDAO().getListsByAdmin(((User)session.getAttribute("user")).getId());
@@ -66,35 +72,58 @@
             </div>
         </form>
     </div>
-
     <!-- Remove Booking for User -->
     <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <!-- Form and Content Here -->
         <h3 class="text-lg font-semibold text-gray-800 mb-4">Remove Booking for User</h3>
 
-        <% for(Reservation reservation : allReservations) {
-            String emailUsername = reservation.getUsername().substring(0, reservation.getUsername().indexOf('@'));
-            String firstChar = emailUsername.substring(0, 1).toUpperCase();
-            String remainingChars = emailUsername.length() > 1 ? emailUsername.substring(1) : "";
-            String capitalizedUsername = firstChar + remainingChars;
-        %>
-
-        <div class="mb-4 p-4 bg-gray-50 rounded-lg flex items-center justify-between">
-            <span class="text-sm font-medium text-gray-700">
-                Username: <%= capitalizedUsername %>,
-                List ID: <%= reservation.getListId() %>,
-                Sequence: <%= reservation.getSequence() %>
-            </span>
-            <form action="AdminRemoveBooking" method="post" class="inline-flex">
-                <input type="hidden" name="bookingId" value="<%= reservation.getId() %>">
-                <button type="submit" class="text-white bg-red-600 hover:bg-red-700 focus:ring-red-500 focus:ring-offset-red-200 text-sm rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-offset-2">
-                    Remove Booking
-                </button>
-            </form>
-        </div>
-        <% } %>
-
+        <table class="min-w-full leading-normal">
+            <thead>
+            <tr>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Username
+                </th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    List Name
+                </th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Sequence
+                </th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Actions
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <% for(Reservation reservation : allReservations) {
+                String emailUsername = reservation.getUsername().substring(0, reservation.getUsername().indexOf('@'));
+                String firstChar = emailUsername.substring(0, 1).toUpperCase();
+                String remainingChars = emailUsername.length() > 1 ? emailUsername.substring(1) : "";
+                String capitalizedUsername = firstChar + remainingChars;
+            %>
+            <tr>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <%= capitalizedUsername %>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <%= reservation.getListName() %>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <%= reservation.getSequence() %>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <form action="AdminRemoveBooking" method="post">
+                        <input type="hidden" name="bookingId" value="<%= reservation.getId() %>">
+                        <button type="submit" class="text-white bg-red-600 hover:bg-red-700 focus:ring-red-500 focus:ring-offset-red-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-offset-2">
+                            Remove Booking
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
     </div>
+
 
     <!-- Booking Lists -->
     <div class="bg-white p-6 rounded-lg shadow-lg mb-6">

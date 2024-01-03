@@ -34,7 +34,8 @@ public class BookingDAO {
                 rs.getInt("user_id"),
                 rs.getString("username"),
                 rs.getInt("coop_id"),
-                rs.getInt("sequence")
+                rs.getInt("sequence"),
+                rs.getString("listName")
         );
     }
 
@@ -61,9 +62,14 @@ public class BookingDAO {
     }
 
     public List<Reservation> getAllReservations() {
-        // The SQL query now joins the reservations table with the users table
-        String sql = "SELECT r.*, u.username FROM booking.reservations r JOIN booking.users u ON r.user_id = u.id;";
+        // The SQL query now joins the reservations table with the users and lists tables
+        // Assuming 'description' is the column in 'lists' table that you want to show as 'listName'
+        String sql = "SELECT r.*, u.username, l.description AS listName " +
+                "FROM booking.reservations r " +
+                "JOIN booking.users u ON r.user_id = u.id " +
+                "JOIN booking.lists l ON r.list_id = l.id;"; // Join with lists table to get the list name
         return executeQueryAndMapToReservations(sql);
     }
+
 
 }
