@@ -71,7 +71,7 @@ public class CreateListServlet extends HttpServlet {
         }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         // Add logic to fetch the courses available to the user
-        HttpSession session = request.getSession(false);
+        /*HttpSession session = request.getSession(false);
         User user = (User) session.getAttribute("user");
 
         if (user != null) {
@@ -87,7 +87,9 @@ public class CreateListServlet extends HttpServlet {
             dispatcher.forward(request, response);
         } else {
             response.sendRedirect("login.jsp");
-        }
+        }*/
+
+        response.sendRedirect("createList.jsp");
     }
 
 }

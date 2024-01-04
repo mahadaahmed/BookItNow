@@ -68,15 +68,15 @@
     <form action="createList" method="post">
         <!-- Removed ID input as it should be set by the database automatically -->
         <div>
-            <!--label for="courseID">Course ID:</label>
-            <input type="text" id="courseID" name="courseID" required-->
-            <label for="courseID">Course:</label>
+            <label for="courseID">Course ID:</label>
+            <input type="text" id="courseID" name="courseID" required>
+            <!--label for="courseID">Course:</label>
             <select id="courseID" name="courseID" required>
-                <% List<Course> courses = (List<Course>) request.getAttribute("availableCourses");
+                <!% List<Course> courses = request.getAttribute("availableCourses");
                     for(Course course : courses) { %>
-                <option value="<%= course.getId() %>"><%= course.getTitle() %></option>
-                <% } %>
-            </select>
+                <option value="<!%= course.getId() %>"><!%= course.getTitle() %></option>
+                <!% } %>
+            </select-->
 
         </div>
         <div>
