@@ -45,6 +45,8 @@ public class UserDAO {
         }, userId);
     }
 
+
+
     public List<User> getAllUsers() {
         String sql = "SELECT id, username, password, admin FROM booking.users;";
         return DatabaseUtil.executeQuery(sql, rs -> {
@@ -79,10 +81,38 @@ public class UserDAO {
 
 
     public boolean createUser(String username, String plaintextPassword, boolean isAdmin) {
+        // Check if the user already exists in the database
+        if (getUserByUsername(username) != null) {
+            // User already exists
+            return false;
+        }
+
+        // User does not exist, proceed with creating a new user
         String sql = "INSERT INTO booking.users (username, password, admin) VALUES (?, ?, ?);";
         String hashedPassword = hashPassword(plaintextPassword); // Hash the password with bcrypt
-        int affectedRows = DatabaseUtil.executeUpdate(sql, username, hashedPassword, isAdmin ? 1 : 0);
-        return affectedRows > 0;
+        try {
+            int affectedRows = DatabaseUtil.executeUpdate(sql, username, hashedPassword, isAdmin ? 1 : 0);
+            return affectedRows > 0;
+        } catch (Exception e) {
+            logger.error("Error creating user", e);
+            return false;
+        }
+    }
+
+    // Utilize this method within the createUser to check if the user exists before attempting to create
+    public User getUserByUsername(String username) {
+        String sql = "SELECT id, username, password, admin FROM booking.users WHERE username = ?";
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        null, // Do not retrieve the password for security reasons
+                        rs.getInt("admin")
+                );
+            }
+            return null; // Return null if the user does not exist
+        }, username);
     }
 
 }

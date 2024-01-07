@@ -16,9 +16,9 @@ public class AdminRemoveBookingServlet extends HttpServlet {
         boolean success = bookingDao.cancelBooking(bookingId);
 
         if (success) {
-            response.sendRedirect("dashboard.jsp?bookingRemoved=true");
+            response.sendRedirect("bookings.jsp?bookingRemoved=true");
         } else {
-            response.sendRedirect("adminDashboard.jsp?error=true");
+            response.sendRedirect("adminHome.jsp?error=true");
         }
     }
 }
