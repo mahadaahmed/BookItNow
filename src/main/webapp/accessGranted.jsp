@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Access Granted</title>
+  <title>Access Status</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -25,11 +25,18 @@
     .message {
       margin-top: 20px;
       padding: 15px;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .success-message {
       background-color: #dff0d8;
       border-color: #d6e9c6;
       color: #3c763d;
-      border-radius: 4px;
-      text-align: center;
+    }
+    .error-message {
+      background-color: #f2dede;
+      border-color: #ebccd1;
+      color: #a94442;
     }
     .dashboard-link {
       display: block;
@@ -49,11 +56,18 @@
 </head>
 <body>
 <div class="container">
+  <% if (request.getAttribute("error") == null) { %>
   <h2>Access Granted</h2>
-  <div class="message">
+  <div class="message success-message">
     <%= request.getAttribute("username") %> has been granted access to course <%= request.getAttribute("courseTitle") %> by admin <%= request.getAttribute("adminUsername") %>.
   </div>
-  <a href="courses.jsp" class="courses-link">Back to Courses</a>
+  <% } else { %>
+  <h2>Access Denied</h2>
+  <div class="message error-message">
+    <%= request.getAttribute("error") %>
+  </div>
+  <% } %>
+  <a href="courses.jsp" class="dashboard-link">Back to Courses</a>
 </div>
 </body>
 </html>

@@ -13,8 +13,43 @@
     <title>Courses</title>
     <!-- Include Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
+<script>
+    $(document).ready(function() {
+        // AJAX for Granting Course Access
+        $("#grantAccessForm").submit(function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            var formData = $(this).serialize(); // Serialize form data
+
+            $.ajax({
+                url: 'GrantCourseAccess', // Servlet URL
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Check the response status
+                    if(response.status === "success") {
+                        alert(response.message); // Success message
+                        // Update your page as needed based on the response
+                        // For example, refresh a part of your page or clear the form
+                    } else {
+                        alert(response.message); // Error message
+                    }
+                },
+                error: function() {
+                    // Handle error in AJAX call
+                    alert("AJAX error: request failed.");
+                }
+            });
+        });
+
+        // You can add more AJAX calls here for other forms or actions
+    });
+</script>
+
+
+
 <%
     User user = (User) session.getAttribute("user");
     if (user == null) {

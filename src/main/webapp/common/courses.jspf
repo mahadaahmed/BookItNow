@@ -30,7 +30,7 @@
 
     <!-- User Selection Form -->
     <h3 class="text-lg font-semibold text-gray-800 mb-4">Grant User Access to a Course</h3>
-    <form action="GrantCourseAccess" method="post" class="space-y-4 bg-white p-6 rounded-lg shadow-lg mb-6">
+    <form id="grantAccessForm" action="GrantCourseAccess" method="post" class="space-y-4 bg-white p-6 rounded-lg shadow-lg mb-6">
         <div>
             <label for="user" class="block text-sm font-medium text-gray-700">User:</label>
             <select id="user" name="userId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">

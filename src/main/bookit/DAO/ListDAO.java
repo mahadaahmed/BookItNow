@@ -137,4 +137,16 @@ public class ListDAO {
         return affectedRows > 0;
     }
 
+    public boolean hasCourseAccess(int courseId, int userId) {
+        String sql = "SELECT COUNT(*) FROM booking.courseaccess WHERE course_id = ? AND user_id = ?";
+        // Use DatabaseUtil to execute the query and check if the count is greater than 0
+        // Return true if the count is greater than 0, indicating that access already exists
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            if (rs.next()) {
+                return rs.getInt("count") > 0;
+            }
+            return false;
+        }, courseId, userId);
+    }
+
 }
