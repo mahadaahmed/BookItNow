@@ -70,6 +70,30 @@ public class DatabaseUtil {
         return pstmt;
     }
 
+    public static int executeInsertWithIdReturn(String sql, Object... params) {
+        int generatedId = -1;
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        generatedId = rs.getInt(1);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle exception properly
+        }
+        return generatedId;
+    }
+
     public interface ResultSetHandler<T> {
         T handle(ResultSet rs) throws SQLException;
     }

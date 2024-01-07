@@ -23,6 +23,6 @@ public class CancelBookingServlet extends HttpServlet {
             session.setAttribute("cancelMessage", "Failed to cancel booking.");
         }
 
-        response.sendRedirect("dashboard");
+        response.sendRedirect("bookings.jsp");
     }
 }
