@@ -85,6 +85,7 @@
             <input type="password" id="password" name="password">
         </div>
         <input type="submit" value="Login" class="login-button">
+        <!--button value="Register" class="login-button"><a href="register.jsp" class="login-button">Register</a></button-->
     </form>
 </div>
 </body>

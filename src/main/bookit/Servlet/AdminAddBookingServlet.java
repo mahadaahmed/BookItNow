@@ -20,12 +20,12 @@ public class AdminAddBookingServlet extends HttpServlet {
         boolean isAvailable = bookingDao.isTimeslotAvailable(listId, sequence);
 
         if (isAvailable) {
-            boolean success = bookingDao.createBooking(listId, userId, sequence);
-            if (success) {
+            int success = bookingDao.createBooking(listId, userId, sequence);
+            if (success > 0) {
                 // Redirect to a confirmation page or display a success message
                 response.sendRedirect("dashboard.jsp?bookingAdded=true");
             } else {
-                // Redirect to an error page or display an error message
+                // Redirect to an error page or display an error messagea
                 response.sendRedirect("dashboard.jsp?error=true");
             }
         } else {

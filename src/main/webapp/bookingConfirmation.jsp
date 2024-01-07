@@ -48,7 +48,7 @@
     <%= bookingMessage != null ? bookingMessage : "An unexpected error occurred." %>
   </div>
   <!-- Link to go back to the dashboard or any other page -->
-  <a href="dashboard">Return to Dashboard</a>
+  <a href="bookings.jsp">Return to Bookings</a>
 </div>
 </body>
 </html>

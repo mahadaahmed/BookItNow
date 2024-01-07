@@ -13,6 +13,8 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50">
+
+
 <div class="min-h-screen flex flex-col justify-center items-center px-4 py-8">
     <div class="w-full max-w-6xl mx-auto p-6 bg-white shadow-md rounded-lg">
         <h1 class="text-3xl font-semibold text-center text-gray-800 mb-10">Available Time Slots</h1>
@@ -50,6 +52,21 @@
                                 <option value="<%= sequence %>"><%= "Slot " + (sequence + 1) + " (" + timeFormat.format(startTime.getTime()) + ")" %></option>
                                 <% } %>
                             </select>
+                        </div>
+                        <div>
+                            <!-- Add a checkbox for the user to select if they want cooperation -->
+                            <label for="addCoop">
+                                <input type="checkbox" name="addCoop" id="addCoop" value="yes">
+                                Add Cooperation
+                            </label>
+
+                            <!-- If you have cooperation details, add them here as hidden inputs that you can show or hide based on the checkbox -->
+                            <div id="coopDetails" style="display:none;">
+                                <!-- Add any input fields related to cooperation here -->
+                                <input type="text" name="coopName" placeholder="Cooperation Name">
+                                <!-- Add more fields as needed -->
+                            </div>
+
                             <input type="submit" value="Book Slot" class="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 cursor-pointer">
                         </div>
                     </form>
@@ -70,5 +87,18 @@
         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"><a href="dashboard">BACK</a></button>
     </div>
 </div>
+
+
+<script>
+    // JavaScript to toggle the display of cooperation details based on the checkbox
+    document.getElementById('addCoop').addEventListener('change', function() {
+        var coopDetailsDiv = document.getElementById('coopDetails');
+        if(this.checked) {
+            coopDetailsDiv.style.display = 'block';
+        } else {
+            coopDetailsDiv.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>
