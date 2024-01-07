@@ -1,101 +1,86 @@
 package main.bookit.DAO;
 
 import main.bookit.Model.Course;
+import main.bookit.DAO.utils.DatabaseUtil;
+import main.bookit.Model.User;
 
-import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CourseDAO {
 
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/bookingdb";
-    private static final String USER = "postgres";
-    private static final String PASS = "12345";
-
     public List<Course> getAllCourses() {
-        List<Course> courses = new ArrayList<>();
         String sql = "SELECT id, title FROM booking.courses";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            ResultSet rs = pstmt.executeQuery();
-
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            List<Course> courses = new ArrayList<>();
             while (rs.next()) {
-                Course course = new Course(rs.getInt("id"), rs.getString("title"));
-                courses.add(course);
+                courses.add(new Course(rs.getInt("id"), rs.getString("title")));
             }
-        } catch (SQLException e) {
-            // Handle exceptions
-            e.printStackTrace();
-        }
-
-        return courses;
+            return courses;
+        });
     }
-
-    public String getCourseTitleById(int courseId) {
-        String title = null;
-        String sql = "SELECT title FROM booking.courses WHERE id = ?";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, courseId);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    title = rs.getString("title");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return title;
-    }
-
 
     public Course getCourseById(int courseId) {
-        Course course = null;
         String sql = "SELECT id, title FROM booking.courses WHERE id = ?";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, courseId);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    course = new Course(rs.getInt("id"), rs.getString("title"));
-                }
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            if (rs.next()) {
+                return new Course(rs.getInt("id"), rs.getString("title"));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return course;
+            return null;
+        }, courseId);
     }
-
 
     public List<Course> getCoursesForUser(int userId) {
-        List<Course> accessibleCourses = new ArrayList<>();
-        String sql = "SELECT c.* FROM booking.courses c JOIN booking.course_access ca ON c.id = ca.course_id WHERE ca.user_id = ?;";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-
+        String sql = "SELECT c.* FROM booking.courses c JOIN booking.courseaccess ca ON c.id = ca.course_id WHERE ca.user_id = ?";
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            List<Course> accessibleCourses = new ArrayList<>();
             while (rs.next()) {
-                Course course = new Course(rs.getInt("id"), rs.getString("title"));
-                accessibleCourses.add(course);
+                accessibleCourses.add(new Course(rs.getInt("id"), rs.getString("title")));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // Handle exceptions
-        }
-
-        return accessibleCourses;
+            return accessibleCourses;
+        }, userId);
     }
 
-    // Additional methods to handle other CRUD operations could be added here
+    public boolean addCourse(String title) {
+        String sql = "INSERT INTO booking.courses (title) VALUES (?)";
+       // String title = course.getTitle();
+        int affectedRows = DatabaseUtil.executeUpdate(sql, title);
+
+        return affectedRows > 0;
+    }
+
+    public boolean revokeCourseAccessForUser(int userId, int courseId) {
+        String sql = "DELETE FROM booking.courseaccess WHERE user_id = ? AND course_id = ?";
+        int affectedRows = DatabaseUtil.executeUpdate(sql, userId, courseId);
+        return affectedRows > 0;
+    }
+
+    // In CourseDAO or a new DAO, perhaps UserCourseDAO
+    public Map<User, List<Course>> getUserAccessMap() {
+        String sql = "SELECT u.id as user_id, u.username, c.id as course_id, c.title "
+                + "FROM booking.users u "
+                + "JOIN booking.courseaccess ca ON u.id = ca.user_id "
+                + "JOIN booking.courses c ON ca.course_id = c.id";
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            Map<User, List<Course>> accessMap = new HashMap<>();
+            while (rs.next()) {
+                int userId = rs.getInt("user_id");
+                String username = rs.getString("username");
+                User user = new User(userId, username); // Assuming User class has this constructor.
+
+                int courseId = rs.getInt("course_id");
+                String title = rs.getString("title");
+                Course course = new Course(courseId, title); // Using the constructor you provided.
+
+                if (!accessMap.containsKey(user)) {
+                    accessMap.put(user, new ArrayList<>());
+                }
+                accessMap.get(user).add(course);
+            }
+            return accessMap;
+        });
+    }
+
 }

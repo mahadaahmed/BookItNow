@@ -1,0 +1,256 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: ahmed-bashir
+  Date: 2024-01-01
+  Time: 23:49
+  To change this template use File | Settings | File Templates.
+--%>
+<%-- Created by IntelliJ IDEA. User: ahmed-bashir Date: 2024-01-01 Time: 23:49 To change this template use File | Settings | File Templates. --%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.List" %>
+<%@ page import="main.bookit.Model.User" %>
+<%@ page import="main.bookit.DAO.UserDAO" %>
+<%@ page import="main.bookit.DAO.ListDAO" %>
+<%@ page import="main.bookit.Model.BookingList" %>
+<%@ page import="main.bookit.Model.Reservation" %>
+<%@ page import="main.bookit.Model.Course" %>
+<%@ page import="main.bookit.DAO.CourseDAO" %>
+<%@ page import="java.util.Calendar" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+
+<%
+    List<User> allUsers = new UserDAO().getAllUsers();
+    List<BookingList> allAvailableLists = new ListDAO().getAllAvailableLists();
+    List<Reservation> allReservations = new BookingDAO().getAllReservations();
+    for(Reservation reservation : allReservations) {
+        BookingList bookingList = new ListDAO().getBookingListById(reservation.getListId());
+        if(bookingList != null) {
+            reservation.setListName(bookingList.getDescription());
+        }
+    }
+    List<Course> courses = new CourseDAO().getCoursesForUser(user.getId());
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    List<BookingList> listsByAdmin = new ListDAO().getListsByAdmin(((User)session.getAttribute("user")).getId());
+%>
+
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-3xl font-bold text-gray-800 text-center mb-6">Booking Management</h2>
+
+    <% if(user.getAdmin() == 1) { %>
+    <!-- Admin Panel Section -->
+
+    <!-- Add Booking for User -->
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <!-- Form and Content Here -->
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Add Booking for User</h3>
+        <form action="AdminAddBooking" method="post" class="space-y-4">
+            <div>
+                <label for="userSelect" class="block text-sm font-medium text-gray-700">Select User:</label>
+                <select id="userSelect" name="userId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                    <% for (User tempUser : allUsers) {
+                       if (!tempUser.isAdmin()) { %>
+                    <option value="<%= tempUser.getId() %>"><%= tempUser.getUsername() %></option>
+                    <%   }
+                    }
+                    %>
+                </select>
+            </div>
+            <div>
+                <label for="listSelect" class="block text-sm font-medium text-gray-700">Select List:</label>
+                <select id="listSelect" name="listId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                    <% for (BookingList list : allAvailableLists) { %>
+                    <option value="<%= list.getId() %>"><%= list.getDescription() %></option>
+                    <% } %>
+                </select>
+            </div>
+            <div>
+                <label for="sequenceInput" class="block text-sm font-medium text-gray-700">Select Sequence:</label>
+                <input type="number" id="sequenceInput" name="sequence" required min="0" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+            </div>
+            <div class="flex justify-end">
+                <input type="submit" value="Add Booking" class="cursor-pointer inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            </div>
+        </form>
+    </div>
+    <!-- Remove Booking for User -->
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Remove Booking for User</h3>
+
+        <table class="min-w-full leading-normal">
+            <thead>
+            <tr>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Username
+                </th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    List Name
+                </th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Sequence
+                </th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Actions
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <% for(Reservation reservation : allReservations) {
+                String emailUsername = reservation.getUsername().substring(0, reservation.getUsername().indexOf('@'));
+                String firstChar = emailUsername.substring(0, 1).toUpperCase();
+                String remainingChars = emailUsername.length() > 1 ? emailUsername.substring(1) : "";
+                String capitalizedUsername = firstChar + remainingChars;
+            %>
+            <tr>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <%= capitalizedUsername %>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <%= reservation.getListName() %>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <%= reservation.getSequence() %>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <form action="AdminRemoveBooking" method="post">
+                        <input type="hidden" name="bookingId" value="<%= reservation.getId() %>">
+                        <button type="submit" class="text-white bg-red-600 hover:bg-red-700 focus:ring-red-500 focus:ring-offset-red-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-offset-2">
+                            Remove Booking
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- Booking Lists -->
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <!-- Form and Content Here -->
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Booking Lists</h3>
+        <% for (BookingList list : listsByAdmin) { %>
+        <div class="mb-4 p-4 bg-gray-50 rounded-lg flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-700">
+                <%= list.getDescription() %> - <%= list.getLocation() %>
+            </span>
+            <div class="flex gap-2">
+                <form action="EditBookingList" method="post" class="inline-flex">
+                    <input type="hidden" name="listId" value="<%= list.getId() %>" />
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Edit
+                    </button>
+                </form>
+                <form action="DeleteBookingList" method="post" class="inline-flex">
+                    <input type="hidden" name="listId" value="<%= list.getId() %>" />
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" onclick="return confirm('Are you sure you want to delete this list?');">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+        <% } %>
+    </div>
+    <% } else { %>
+
+    <div class="border border-sky-500 bg-white p-6 rounded-lg shadow-lg">
+        <!-- User Panel Section -->
+        <h2 class="text-xl font-semibold mb-4">Your Bookings</h2>
+
+        <div>
+            <%  List<Reservation> bookings = new BookingDAO().getBookingsForUser(user.getId());
+                if (bookings != null && !bookings.isEmpty()) {
+            %>
+            <table class="min-w-full table-auto">
+                <thead class="bg-gray-200">
+                <tr>
+                    <th class="px-4 py-2 text-left">Course ID</th>
+                    <th class="px-4 py-2 text-left">Type</th>
+                    <th class="px-4 py-2 text-left">Time</th>
+                    <th class="px-4 py-2 text-left">Place</th>
+                    <th class="px-4 py-2 text-left">Co-worker</th>
+                    <th class="px-4 py-2 text-left">Action</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white">
+                <% for (Reservation booking : bookings) {
+                    BookingList bookingList = new ListDAO().getBookingListById(booking.getListId());
+                    if(bookingList != null) {
+                        booking.setListName(bookingList.getDescription());
+                    }
+                    Course course = new CourseDAO().getCourseById(bookingList.getCourseId());
+                    String courseTitle = course != null ? course.getTitle() : "Unknown Course";
+                    String listType = bookingList.getDescription().substring(0,1).toUpperCase() + bookingList.getDescription().substring(1);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(bookingList.getStart());
+                    calendar.add(Calendar.MINUTE, booking.getSequence() * bookingList.getInterval());
+                    String time = dateFormat.format(calendar.getTime());
+                    String place = bookingList.getLocation();
+                    List<String> usercoworker = new BookingDAO().getCooperationsForUserAndBooking(user.getId(), booking.getId());
+                    String userCoop = null;
+                    if(usercoworker.isEmpty()){
+                        userCoop = "Alone";
+                    } else {
+                        String[] partnerName = usercoworker.get(0).split("@", 2);
+                        userCoop = partnerName[0].substring(0,1).toUpperCase() + partnerName[0].substring(1);
+                    }
+
+
+
+                %>
+                <tr>
+                    <td class="border px-4 py-2"><%= courseTitle %></td>
+                    <td class="border px-4 py-2"><%= listType %></td>
+                    <td class="border px-4 py-2"><%= time %></td>
+                    <td class="border px-4 py-2"><%= place %></td>
+                    <td class="border px-4 py-2"><%= userCoop %></td>
+                    <td class="border px-4 py-2">
+                        <form action="cancelBooking" method="post">
+                            <input type="hidden" name="bookingId" value="<%= booking.getId() %>" />
+                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded focus:outline-none focus:shadow-outline">
+                                Cancel List
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+            <% } else { %>
+            <p class="text-gray-700">You have no bookings.</p>
+            <% } %>
+        </div>
+    </div>
+
+
+    <!-- New Booking Section -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <!-- Form and Content Here -->
+        <h2 class="text-xl font-semibold text-gray-700">Make a New Booking</h2>
+        <form action="bookTimeSlot" method="post">
+            <div class="mt-3">
+                <%
+                    courses = new CourseDAO().getCoursesForUser(user.getId());
+                    if (courses.isEmpty()) {
+                %>
+                <p class="text-gray-500">You don't have access to any courses.</p>
+                <%
+                } else {
+                    for (Course course : courses) {
+                %>
+                <div class="mt-2">
+                    <a href="timeslot?courseId=<%= course.getId() %>"  class="text-blue-600 hover:text-blue-800"><%= course.getTitle() %></a>
+                </div>
+                <%
+                        }
+                    }
+                %>
+                <!--input type="submit" value="Book Now" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" /-->
+            </div>
+        </form>
+    </div>
+    <% } %>
+</div>

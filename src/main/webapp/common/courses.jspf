@@ -1,0 +1,177 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: ahmed-bashir
+  Date: 2024-01-01
+  Time: 23:49
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.*" %>
+<%@ page import="main.bookit.Model.User" %>
+<%@ page import="main.bookit.Model.Course" %>
+<%@ page import="main.bookit.DAO.UserDAO" %>
+<%@ page import="main.bookit.DAO.CourseDAO" %>
+
+<%
+    UserDAO userDao = new UserDAO();
+    CourseDAO courseDao = new CourseDAO();
+    List<User> allUsers = userDao.getAllUsers(); // Assumed method name
+    List<Course> allCourses = courseDao.getAllCourses(); // Assumed method name
+    String selectedCourseId = request.getParameter("selectedCourseId");
+    Map<User, List<Course>> userAccessMap = courseDao.getUserAccessMap();
+    List<User> usersWithoutAccess = null;
+    if (selectedCourseId != null && !selectedCourseId.isEmpty()) {
+        usersWithoutAccess = userDao.getUsersWithoutAccess(Integer.parseInt(selectedCourseId));
+    }
+%>
+
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-3xl font-bold text-gray-800 text-center mb-6">Courses Management</h2>
+
+    <!-- User Selection Form -->
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Grant User Access to a Course</h3>
+    <form id="grantAccessForm" action="GrantCourseAccess" method="post" class="space-y-4 bg-white p-6 rounded-lg shadow-lg mb-6">
+        <div>
+            <label for="user" class="block text-sm font-medium text-gray-700">User:</label>
+            <select id="user" name="userId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                <% for (User tempUser : allUsers) {
+                    if (!tempUser.isAdmin()) { %>
+                <option value="<%= tempUser.getId() %>"><%= tempUser.getUsername() %></option>
+                <%   }
+                }
+                %>
+            </select>
+        </div>
+        <div>
+            <label for="course" class="block text-sm font-medium text-gray-700">Course:</label>
+            <select id="course" name="courseId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                <% for (Course course : allCourses) { %>
+                <option value="<%= course.getId() %>"><%= course.getTitle() %></option>
+                <% } %>
+            </select>
+        </div>
+        <div class="flex justify-end">
+            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Grant Access
+            </button>
+        </div>
+    </form>
+
+    <!-- Grant Access Section -->
+    <!--div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Grant Course Access</h3>
+        <!% if (selectedCourseId != null && !selectedCourseId.isEmpty() && usersWithoutAccess != null && !usersWithoutAccess.isEmpty()) { %>
+        <form action="GrantCourseAccess" method="post" class="space-y-4">
+            <div>
+                <label for="userSelects" class="block text-sm font-medium text-gray-700">Select User:</label>
+                <select id="userSelects" name="userId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                    <!% for (User userItem : usersWithoutAccess) { %>
+                    <option value="<!%= userItem.getId() %>"><!%= userItem.getUsername() %></option>
+                    <!% } %>
+                </select>
+            </div>
+            <input type="hidden" name="courseId" value="<!%= selectedCourseId %>">
+            <div class="flex justify-end">
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Grant Access
+                </button>
+            </div>
+        </form>
+        <!% } else { %>
+        <p class="text-gray-600">No users available or no course selected.</p>
+        <!% } %>
+    </div-->
+
+    <!-- Revoke Course Access Section -->
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Revoke User Access from a Course</h3>
+        <form action="revokeCourseAccess" method="post" class="space-y-4">
+            <div>
+                <label for="userRevoke" class="block text-sm font-medium text-gray-700">User:</label>
+                <select id="userRevoke" name="userId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                    <% for (Map.Entry<User, List<Course>> entry : userAccessMap.entrySet()) {
+                        User revokedUser = entry.getKey();
+                        // Display users who are not admins and have at least one course access
+                        if (!revokedUser.isAdmin() && !entry.getValue().isEmpty()) { %>
+                    <option value="<%= revokedUser.getId() %>"><%= revokedUser.getUsername() %></option>
+                    <% }
+                    } %>
+                </select>
+            </div>
+            <div>
+                <label for="courseRevoke" class="block text-sm font-medium text-gray-700">Course:</label>
+                <select id="courseRevoke" name="courseId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                    <!--% // Assuming you have a method to get the courses for a specific user
+                        // You will need to implement this in a way that the admin can select the course to revoke after selecting a user
+                        // This might be done with JavaScript to dynamically populate the courses based on the selected user
+
+                        populateCourses();
+                    %-->
+                    <% for (Course course : allCourses) { %>
+                    <option value="<%= course.getId() %>"><%= course.getTitle() %></option>
+                    <% } %>
+                </select>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Revoke Access
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+
+    <!-- Display courses and users with access in a table -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Course Access Table</h3>
+        <table class="min-w-full leading-normal">
+            <thead>
+            <tr>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Users with Access
+                </th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Courses
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <%
+                for (Map.Entry<User, List<Course>> entry : userAccessMap.entrySet()) {
+                    User singelUser = entry.getKey();
+                    List<Course> usersWithAccess = entry.getValue();
+            %>
+            <%
+                String[] theRealNames = singelUser.getUsername().split("@", 2);
+                String  capitalizeNames = theRealNames[0].substring(0,1).toUpperCase() + theRealNames[0].substring(1);
+            %>
+            <tr>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <div class="flex items-center">
+                        <div class="ml-3">
+                            <p class="text-gray-900 whitespace-no-wrap">
+                                <%= capitalizeNames %>
+                            </p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">
+                        <% for (Course singelCourse : usersWithAccess) { %>
+                        <%= singelCourse.getTitle() %><br>
+                        <% } %>
+                    </p>
+                </td>
+            </tr>
+            <%
+                }
+            %>
+            </tbody>
+        </table>
+        <% if (userAccessMap.isEmpty()) { %>
+        <p class="text-gray-600">No user access information available.</p>
+        <% } %>
+    </div>
+
+</div>

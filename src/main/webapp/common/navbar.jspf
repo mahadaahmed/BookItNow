@@ -1,0 +1,31 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<%
+    String[] userNamefromEmail = user.getUsername().split("@", 2);
+    String  capitalizeName = userNamefromEmail[0].substring(0,1).toUpperCase() + userNamefromEmail[0].substring(1);
+%>
+
+<nav class="bg-gray-800 p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <!-- Left-aligned links for all users -->
+        <div class="flex items-center space-x-4">
+
+            <%
+                if(user.getAdmin() == 1){
+            %>
+            <a href="adminHome.jsp" class="text-white text-lg hover:text-indigo-300">Home</a>
+            <a href="bookings.jsp" class="text-white text-lg hover:text-indigo-300">Bookings</a>
+            <a href="courses.jsp" class="text-white text-lg hover:text-indigo-300">Courses</a>
+            <% } else {%>
+            <a href="userHome.jsp" class="text-white text-lg hover:text-indigo-300">Home</a>
+            <a href="bookings.jsp" class="text-white text-lg hover:text-indigo-300">Bookings</a>
+            <% } %>
+        </div>
+
+        <!-- Right-aligned username and logout button -->
+        <div class="flex items-center space-x-4">
+            <span class="text-white text-lg">Hello, <%= capitalizeName %></span>
+            <a href="<%= request.getContextPath() %>/logout" class="text-white text-lg hover:text-red-300">Logout</a>
+        </div>
+    </div>
+</nav>

@@ -1,16 +1,15 @@
 package main.bookit.Servlet;
 
 import main.bookit.DAO.BookingDAO;
-import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 
 @WebServlet(name = "CancelBookingServlet", urlPatterns = {"/cancelBooking"})
 public class CancelBookingServlet extends HttpServlet {
-    private BookingDAO bookingDAO = new BookingDAO();
+    private final BookingDAO bookingDAO = new BookingDAO();
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         int bookingId = Integer.parseInt(request.getParameter("bookingId"));
         boolean cancelSuccess = bookingDAO.cancelBooking(bookingId);
 
@@ -24,6 +23,6 @@ public class CancelBookingServlet extends HttpServlet {
             session.setAttribute("cancelMessage", "Failed to cancel booking.");
         }
 
-        response.sendRedirect("dashboard");
+        response.sendRedirect("bookings.jsp");
     }
 }

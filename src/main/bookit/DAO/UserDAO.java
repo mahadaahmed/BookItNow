@@ -1,156 +1,118 @@
 package main.bookit.DAO;
 
+import main.bookit.DAO.utils.DatabaseUtil;
 import main.bookit.Model.User;
-
-import java.sql.*;
+import org.mindrot.jbcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
 
-    // Database connection details
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/bookingdb";
-    private static final String USER = "postgres";
-    private static final String PASS = "12345";
+    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
 
-    public User getUserByUsername(String username) {
-        String sql = "SELECT * FROM booking.users WHERE username = ?";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, username);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
+    public User authenticateUser(String username, String plaintextPassword) {
+        String sql = "SELECT id, username, password, admin FROM booking.users WHERE username = ?";
+        try {
+            return DatabaseUtil.executeQuery(sql, rs -> {
                 if (rs.next()) {
-                    return new User(
-                            rs.getInt("id"),
-                            rs.getString("username"),
-                            rs.getString("password"), // Should be hashed
-                            rs.getInt("admin")
-                    );
+                    String storedHash = rs.getString("password");
+                    if (BCrypt.checkpw(plaintextPassword, storedHash)) {
+                        int admin = rs.getInt("admin");
+                        return new User(rs.getInt("id"), rs.getString("username"), null, admin);
+                    }
                 }
-            }
-        } catch (SQLException e) {
-            // Handle exceptions, possibly rethrow as a custom exception
+                return null;
+            }, username);
+        } catch (Exception e) {
+            logger.error("Error authenticating user", e);
+            throw new RuntimeException(e);
         }
-
-        return null;
     }
 
-    public String getAdminUsernameById(int userId) {
-        String username = null;
-        String sql = "SELECT username FROM booking.users WHERE id = ?";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, userId);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    username = rs.getString("username");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return username;
+    public static String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
-
 
     public String getUsernameById(int userId) {
-        String username = null;
         String sql = "SELECT username FROM booking.users WHERE id = ?";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-
+        return DatabaseUtil.executeQuery(sql, rs -> {
             if (rs.next()) {
-                username = rs.getString("username");
+                return rs.getString("username");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // Handle exceptions or rethrow as needed
-        }
-
-        return username;
+            return null;
+        }, userId);
     }
+
+
 
     public List<User> getAllUsers() {
-        List<User> users = new ArrayList<>();
         String sql = "SELECT id, username, password, admin FROM booking.users;";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            List<User> users = new ArrayList<>();
             while (rs.next()) {
-                User user = new User(
+                users.add(new User(
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("password"),
                         rs.getInt("admin")
-                );
-                // If you're using the isAdmin field, you might want to set it here too
-                user.setIsAdmin(rs.getInt("admin")); // Assuming 1 for admin, 0 for non-admin
-                users.add(user);
+                ));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // Handle the exception
-        }
-        return users;
+            return users;
+        });
     }
-
 
     public List<User> getUsersWithoutAccess(int courseId) {
-        List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM booking.users WHERE id NOT IN (SELECT user_id FROM booking.course_access WHERE course_id = ?)";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, courseId);
-            ResultSet rs = pstmt.executeQuery();
-
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            List<User> users = new ArrayList<>();
             while (rs.next()) {
-                User user = new User(
+                users.add(new User(
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("password"),
                         rs.getInt("admin")
-                );
-                users.add(user);
+                ));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return users;
+            return users;
+        }, courseId);
     }
 
-    public boolean createUser(String username, String password, boolean isAdmin) {
+
+    public boolean createUser(String username, String plaintextPassword, boolean isAdmin) {
+        // Check if the user already exists in the database
+        if (getUserByUsername(username) != null) {
+            // User already exists
+            return false;
+        }
+
+        // User does not exist, proceed with creating a new user
         String sql = "INSERT INTO booking.users (username, password, admin) VALUES (?, ?, ?);";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, username);
-            pstmt.setString(2, password); // Ideally, you should hash the password
-            pstmt.setInt(3, isAdmin ? 1 : 0);
-
-            int affectedRows = pstmt.executeUpdate();
+        String hashedPassword = hashPassword(plaintextPassword); // Hash the password with bcrypt
+        try {
+            int affectedRows = DatabaseUtil.executeUpdate(sql, username, hashedPassword, isAdmin ? 1 : 0);
             return affectedRows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("Error creating user", e);
             return false;
         }
     }
 
+    // Utilize this method within the createUser to check if the user exists before attempting to create
+    public User getUserByUsername(String username) {
+        String sql = "SELECT id, username, password, admin FROM booking.users WHERE username = ?";
+        return DatabaseUtil.executeQuery(sql, rs -> {
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        null, // Do not retrieve the password for security reasons
+                        rs.getInt("admin")
+                );
+            }
+            return null; // Return null if the user does not exist
+        }, username);
+    }
+
 }
-
-
-    // Other User-related database operations

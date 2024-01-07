@@ -1,11 +1,14 @@
 package main.bookit.Model;
 
+import lombok.Data;
+
+@Data
 public class User {
     private int id;
     private String username;
     private String password;
     private int admin; // This could be boolean, but it's an int here to match the schema
-    private int isAdmin;
+    private boolean isAdmin;
 
     // Constructor
     public User(int id, String username, String password, int admin) {
@@ -15,56 +18,19 @@ public class User {
         this.admin = admin;
     }
 
-    // Getters and Setters
-    // ... implement getters and setters for all fields ...
-
-
-    public int getId() {
-        return id;
-    }
-
-
-
-    public void setId(int id) {
+    public User(int id, String username) {
         this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
         this.username = username;
+        // Since this constructor does not receive admin information, set a default or retrieve it if needed.
+        // This field could be set to a default value or omitted if not used.
+        this.admin = 0; // or some default value or fetched from the database if necessary
+        this.isAdmin = (this.admin != 0); // This will set isAdmin to true if admin is not 0.
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public int getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(int admin) {
-        this.admin = admin;
-    }
 
     public boolean isAdmin() {
-        if(isAdmin > 0){
-            return true;
-        }
-        return false;
+        return this.admin != 0;
     }
 
-    public int getIsAdmin() {
-        return isAdmin;
-    }
 
-    public void setIsAdmin(int isAdmin) {
-        this.isAdmin = isAdmin;
-    }
 }

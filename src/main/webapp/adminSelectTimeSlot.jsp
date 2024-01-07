@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="main.bookit.Model.BookingList" %>
 <%@ page import="main.bookit.DAO.ListDAO" %>
@@ -11,6 +11,7 @@
   <style>
     /* Your existing CSS for styling the page */
   </style>
+  <title></title>
 </head>
 <body>
 <div class="container">
