@@ -1,10 +1,6 @@
 package main.bookit.Servlet;
 
-import main.bookit.DAO.CourseDAO;
 import main.bookit.DAO.ListDAO;
-import main.bookit.DAO.UserDAO;
-import main.bookit.Model.Course;
-import main.bookit.Model.User;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,37 +12,27 @@ import java.io.IOException;
 @WebServlet("/GrantCourseAccess")
 public class GrantCourseAccessServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
         int userId = Integer.parseInt(request.getParameter("userId"));
         int courseId = Integer.parseInt(request.getParameter("courseId"));
 
-        UserDAO userDao = new UserDAO();
         ListDAO listDao = new ListDAO();
-        CourseDAO courseDao = new CourseDAO();
         boolean accessExists = listDao.hasCourseAccess(courseId, userId);
 
         if (!accessExists) {
             boolean success = listDao.addCourseAccess(userId, courseId);
-
             if (success) {
-                User adminUser = (User) request.getSession().getAttribute("user");
-                String username = userDao.getUsernameById(userId);
-                Course course = courseDao.getCourseById(courseId);
-                String courseTitle = course.getTitle();
-                String adminUsername = adminUser.getUsername();
-
-                request.setAttribute("username", username);
-                request.setAttribute("courseTitle", courseTitle);
-                request.setAttribute("adminUsername", adminUsername);
-                request.getRequestDispatcher("accessGranted.jsp").forward(request, response);
+                String jsonResponse = "{\"status\":\"success\", \"message\":\"Access granted.\"}";
+                response.getWriter().write(jsonResponse);
             } else {
-                // Handle the scenario where access couldn't be granted due to some error
-                request.setAttribute("error", "Unable to grant access.");
-                request.getRequestDispatcher("grantAccess.jsp").forward(request, response);
+                String jsonResponse = "{\"status\":\"error\", \"message\":\"Unable to grant access.\"}";
+                response.getWriter().write(jsonResponse);
             }
         } else {
-            // Handle the scenario where user already has access
-            request.setAttribute("error", "User already has access to this course.");
-            request.getRequestDispatcher("accessGranted.jsp").forward(request, response);
+            String jsonResponse = "{\"status\":\"error\", \"message\":\"User already has access to this course.\"}";
+            response.getWriter().write(jsonResponse);
         }
     }
 }

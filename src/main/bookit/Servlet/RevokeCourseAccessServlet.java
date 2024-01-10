@@ -26,8 +26,8 @@ public class RevokeCourseAccessServlet extends HttpServlet {
             CourseDAO courseDao = new CourseDAO();
             boolean accessExists = listDao.hasCourseAccess(courseId, userId);
 
-            if (!accessExists) {
-                boolean success = listDao.addCourseAccess(userId, courseId);
+            if (accessExists) {
+                boolean success = courseDao.revokeCourseAccessForUser(userId, courseId);
 
                 if (success) {
                     User adminUser = (User) request.getSession().getAttribute("user");

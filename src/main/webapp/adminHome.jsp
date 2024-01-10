@@ -14,12 +14,20 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body>
+
+
 <%
     User user = (User) session.getAttribute("user");
     if (user == null) {
+        // User not logged in, redirect to login page
         response.sendRedirect("login.jsp");
         return;
+    } else if (user.getAdmin() != 1) {
+        // User is not an admin, redirect to user home page
+        response.sendRedirect("userHome.jsp");
+        return;
     }
+    // If execution reaches here, the user is an admin and can proceed to see the admin page content
 %>
 
 <script>

@@ -54,7 +54,7 @@ public class BookTimeSlotServlet extends HttpServlet {
                     if (coopId > 0 && !bookingDAO.linkCooperationToReservation(bookingId, coopId)) {
                         // Handle the case where linking failed
                         request.setAttribute("errorMessage", "Failed to link cooperation to the booking.");
-                        request.getRequestDispatcher("/timeslot?courseId=" + listId).forward(request, response);
+                        //request.getRequestDispatcher("/timeslot?courseId=" + listId).forward(request, response);
                         return;
                     }
 

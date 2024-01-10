@@ -16,6 +16,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
+
 <script>
     $(document).ready(function() {
         // AJAX for Granting Course Access
@@ -53,9 +54,15 @@
 <%
     User user = (User) session.getAttribute("user");
     if (user == null) {
+        // User not logged in, redirect to login page
         response.sendRedirect("login.jsp");
         return;
+    } else if (user.getAdmin() != 1) {
+        // User is not an admin, redirect to user home page
+        response.sendRedirect("userHome.jsp");
+        return;
     }
+    // If execution reaches here, the user is an admin and can proceed to see the admin page content
 %>
 
 

@@ -59,7 +59,7 @@
     <% if (request.getAttribute("error") == null) { %>
     <h2>Revoke Granted</h2>
     <div class="message success-message">
-        <%= request.getAttribute("username") %> has been granted access to course <%= request.getAttribute("courseTitle") %> by admin <%= request.getAttribute("adminUsername") %>.
+        <%= request.getAttribute("username") %> access has been revoked<%= request.getAttribute("courseTitle") %> by admin <%= request.getAttribute("adminUsername") %>.
     </div>
     <% } else { %>
     <h2>Access Denied</h2>
